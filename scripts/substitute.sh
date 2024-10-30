@@ -1,5 +1,5 @@
 #!/bin/bash
-if [[ -e "./config" ]]; then
+if [[ -e "./config.h" ]]; then
     sed -i 's/static const char \*fonts\[\]          = { "monospace:size=10" }/static const char *fonts[]          = { "JetbrainsMonoNL Nerd Font:size=14" }/g' ./config.h
     sed -i 's/static const char dmenufont\[\]       = "monospace:size=10"/static const char dmenufont[]       = "JetbrainsMonoNL Nerd Font:size=14"/g' ./config.h
     sed -i 's/static const char \*termcmd\[\]  = { "st", NULL }/ static const char *termcmd[]  = { "alacritty", NULL }/g' ./config.h
