@@ -6,7 +6,7 @@
 picom -b
 /bin/bash ~/.dwm/scripts/tap-to-click.sh &
 /bin/bash ~/.dwm/scripts/inverse-scroll.sh &
-/bin/bash ~/.dwm/scripts/setxmodmap-colemak.sh &
+# /bin/bash ~/.dwm/scripts/setxmodmap-colemak.sh &
 nm-applet &
 xfce4-power-manager &
 #xfce4-volumed-pulse &
