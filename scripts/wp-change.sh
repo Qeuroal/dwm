@@ -1,4 +1,8 @@
 #!/bin/bash
 
-feh --recursive --randomize --bg-fill ~/Pictures/wallpapers/ghibili
+if [ -d ~/Pictures ]; then
+    feh --recursive --randomize --bg-fill ~/Pictures
+fi
+
+
 #feh --recursive --randomize --bg-fill ~/Pictures/wallpapers/view
