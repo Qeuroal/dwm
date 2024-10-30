@@ -116,6 +116,9 @@ print_bat(){
 		#echo -e "${charge}"
 	#fi
 	#echo "$(get_battery_charging_status) $(get_battery_combined_percent)%, $(get_time_until_charged )";
+    if [ "`lspci | grep -i notebook`" = "" -a "`lspci | grep -i laptop`" = "" ]; then
+        return
+    fi
 
     ans=""
     ans="$ans$(get_battery_charging_status)"
@@ -175,11 +178,22 @@ export IDENTIFIER="unicode"
 get_bytes
 
 # Calculates speeds
-vel_recv=$(get_velocity $received_bytes $old_received_bytes $now)
-vel_trans=$(get_velocity $transmitted_bytes $old_transmitted_bytes $now)
+vel_recv=" ⬇️ ""$(get_velocity $received_bytes $old_received_bytes $now)"
+vel_trans=" ⬆️ "$(get_velocity $transmitted_bytes $old_transmitted_bytes $now)
 
 # xsetroot -name "  💿 $(print_mem)M ⬇️ $vel_recv ⬆️ $vel_trans $(dwm_alsa) [ $(print_bat) ]$(show_record) $(print_date) "
-xsetroot -name "  ⬇️ $vel_recv ⬆️ $vel_trans $(dwm_alsa)$(print_bat)$(show_record) $(print_date) "
+
+dwm_alsa=$(dwm_alsa)
+if [ "${dwm_alsa}" != "" ]; then
+    dwm_alsa=" ${dwm_alsa}"
+fi
+
+show_record=""$(show_record)
+if [ "$show_record" != "" ]; then
+    show_record=" ${show_record}"
+fi
+curdate=" $(print_date)"
+xsetroot -name "${vel_recv}${vel_trans}${dwm_alsa}$(print_bat)${show_record}${curdate} "
 
 # Update old values to perform new calculations
 old_received_bytes=$received_bytes
