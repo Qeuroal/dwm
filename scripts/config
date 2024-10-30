@@ -1,0 +1,5 @@
+set show_mem false
+set show_vel false
+set show_alsa false
+set show_record false
+set show_bat false
