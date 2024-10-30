@@ -169,7 +169,7 @@ export IDENTIFIER="unicode"
 #. "$DIR/dwmbar-functions/dwm_date.sh"
 
 memInfo=""
-if [ -f ~/.dwm/config -a `cat ~/.dwm/config | grep -c "set show_mem true"` -gt 0 ]; then
+if [ -f ~/.dwm/status_config -a `cat ~/.dwm/status_config | grep -c "set show_mem true"` -gt 0 ]; then
     memInfo=" 💿 $(print_mem)M"
 fi
 
@@ -180,7 +180,7 @@ vel_recv=" ⬇️ ""$(get_velocity $received_bytes $old_received_bytes $now)"
 vel_trans=" ⬆️ ""$(get_velocity $transmitted_bytes $old_transmitted_bytes $now)"
 
 velInfo=""
-if [ -f ~/.dwm/config -a `cat ~/.dwm/config | grep -c "set show_vel true"` -gt 0 ]; then
+if [ -f ~/.dwm/status_config -a `cat ~/.dwm/status_config | grep -c "set show_vel true"` -gt 0 ]; then
     velInfo=" ${vel_recv}${vel_trans}"
 fi
 
@@ -188,21 +188,21 @@ fi
 #
 
 alsaInfo=$(dwm_alsa)
-if [ -f ~/.dwm/config -a `cat ~/.dwm/config | grep -c "set show_alsa true"` -gt 0 -a "${alsaInfo}" != "" ]; then
+if [ -f ~/.dwm/status_config -a `cat ~/.dwm/status_config | grep -c "set show_alsa true"` -gt 0 -a "${alsaInfo}" != "" ]; then
     alsaInfo=" ${alsaInfo}"
 else
     alsaInfo=""
 fi
 
 recordInfo="$(show_record)"
-if [ -f ~/.dwm/config -a `cat ~/.dwm/config | grep -c "set show_record true"` -gt 0 -a "$recordInfo" != "" ]; then
+if [ -f ~/.dwm/status_config -a `cat ~/.dwm/status_config | grep -c "set show_record true"` -gt 0 -a "$recordInfo" != "" ]; then
     recordInfo=" ${recordInfo}"
 else
     recordInfo=""
 fi
 
 batInfo="$(print_bat)"
-if [ -f ~/.dwm/config -a `cat ~/.dwm/config | grep -c "set show_bat true"` -gt 0 -a  "${batInfo}" != "" ]; then
+if [ -f ~/.dwm/status_config -a `cat ~/.dwm/status_config | grep -c "set show_bat true"` -gt 0 -a  "${batInfo}" != "" ]; then
     batInfo=" [${batInfo}]"
 else
     batInfo=""
