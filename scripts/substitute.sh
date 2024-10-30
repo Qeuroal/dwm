@@ -19,4 +19,8 @@ fi
 
 # dwm.c
 #
-sed -i 's/setlayout(&((Arg) { .v = &layouts\[2\] }));/setlayout(\&\(\(Arg\) { .v = last_layout }\)\);/g' ./dwm.c
+if [[ -e "./dwm.c" ]]; then
+    sed -i 's/setlayout(&((Arg) { .v = &layouts\[2\] }));/setlayout(\&\(\(Arg\) { .v = last_layout }\)\);/g' ./dwm.c
+else
+    echo "not exist dwm.c"
+fi
