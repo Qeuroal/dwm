@@ -116,11 +116,33 @@ print_bat(){
 		#echo -e "${charge}"
 	#fi
 	#echo "$(get_battery_charging_status) $(get_battery_combined_percent)%, $(get_time_until_charged )";
-	echo "$(get_battery_charging_status) $(get_battery_combined_percent)%, $(get_time_until_charged )";
+
+    ans=""
+    ans="$ans$(get_battery_charging_status)"
+    combinePercent=$(get_battery_combined_percent)
+    flag=0
+    if [ "$combinePercent" != "" ]; then
+        ans="$ans $combinePercent"
+        flag=1
+    fi
+
+    restTime=$(get_time_until_charged)
+    if [ "$restTime" != "" ]; then
+        ans="$ans, %$restTime"
+        flag=1
+    fi
+
+    if [ $flag -eq 1 ];then
+        ans=" [$ans]"
+    else
+        ans=" $ans"
+    fi
+    echo "$ans"
+
 }
 
 print_date(){
-	date '+%Y年%m月%d日 %H:%M'
+	date '+%Y.%m.%d %H:%M'
 }
 
 show_record(){
@@ -156,7 +178,8 @@ get_bytes
 vel_recv=$(get_velocity $received_bytes $old_received_bytes $now)
 vel_trans=$(get_velocity $transmitted_bytes $old_transmitted_bytes $now)
 
-xsetroot -name "  💿 $(print_mem)M ⬇️ $vel_recv ⬆️ $vel_trans $(dwm_alsa) [ $(print_bat) ]$(show_record) $(print_date) "
+# xsetroot -name "  💿 $(print_mem)M ⬇️ $vel_recv ⬆️ $vel_trans $(dwm_alsa) [ $(print_bat) ]$(show_record) $(print_date) "
+xsetroot -name "  ⬇️ $vel_recv ⬆️ $vel_trans $(dwm_alsa)$(print_bat)$(show_record) $(print_date) "
 
 # Update old values to perform new calculations
 old_received_bytes=$received_bytes
