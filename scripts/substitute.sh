@@ -17,3 +17,6 @@ else
     echo "not exist config.h"
 fi
 
+# dwm.c
+#
+sed -i 's/setlayout(&((Arg) { .v = &layouts\[2\] }));/setlayout(\&\(\(Arg\) { .v = last_layout }\)\);/g' ./dwm.c
