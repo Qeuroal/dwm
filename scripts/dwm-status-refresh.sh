@@ -116,9 +116,10 @@ print_bat(){
 		#echo -e "${charge}"
 	#fi
 	#echo "$(get_battery_charging_status) $(get_battery_combined_percent)%, $(get_time_until_charged )";
-    if [ "`lspci | grep -i notebook`" = "" -a "`lspci | grep -i laptop`" = "" ]; then
-        return
-    fi
+
+    # if [ "`lspci | grep -i notebook`" = "" -a "`lspci | grep -i laptop`" = "" ]; then
+    #     return
+    # fi
 
     ans=""
     ans="$ans$(get_battery_charging_status)"
@@ -126,22 +127,14 @@ print_bat(){
     flag=0
     if [ "$combinePercent" != "" ]; then
         ans="$ans $combinePercent"
-        flag=1
     fi
 
     restTime=$(get_time_until_charged)
     if [ "$restTime" != "" ]; then
         ans="$ans, %$restTime"
-        flag=1
     fi
 
-    if [ $flag -eq 1 ];then
-        ans=" [$ans]"
-    else
-        ans=" $ans"
-    fi
     echo "$ans"
-
 }
 
 print_date(){
@@ -175,25 +168,49 @@ export IDENTIFIER="unicode"
 #. "$DIR/dwmbar-functions/dwm_ccurse.sh"
 #. "$DIR/dwmbar-functions/dwm_date.sh"
 
+memInfo=""
+if [ -f ~/.dwm/config -a `cat ~/.dwm/config | grep -c "set show_mem true"` -gt 0 ]; then
+    memInfo=" 💿 $(print_mem)M"
+fi
+
 get_bytes
 
 # Calculates speeds
 vel_recv=" ⬇️ ""$(get_velocity $received_bytes $old_received_bytes $now)"
-vel_trans=" ⬆️ "$(get_velocity $transmitted_bytes $old_transmitted_bytes $now)
+vel_trans=" ⬆️ ""$(get_velocity $transmitted_bytes $old_transmitted_bytes $now)"
+
+velInfo=""
+if [ -f ~/.dwm/config -a `cat ~/.dwm/config | grep -c "set show_vel true"` -gt 0 ]; then
+    velInfo=" ${vel_recv}${vel_trans}"
+fi
 
 # xsetroot -name "  💿 $(print_mem)M ⬇️ $vel_recv ⬆️ $vel_trans $(dwm_alsa) [ $(print_bat) ]$(show_record) $(print_date) "
+#
 
-dwm_alsa=$(dwm_alsa)
-if [ "${dwm_alsa}" != "" ]; then
-    dwm_alsa=" ${dwm_alsa}"
+alsaInfo=$(dwm_alsa)
+if [ -f ~/.dwm/config -a `cat ~/.dwm/config | grep -c "set show_alsa true"` -gt 0 -a "${alsaInfo}" != "" ]; then
+    alsaInfo=" ${alsaInfo}"
+else
+    alsaInfo=""
 fi
 
-show_record=""$(show_record)
-if [ "$show_record" != "" ]; then
-    show_record=" ${show_record}"
+recordInfo="$(show_record)"
+if [ -f ~/.dwm/config -a `cat ~/.dwm/config | grep -c "set show_record true"` -gt 0 -a "$recordInfo" != "" ]; then
+    recordInfo=" ${recordInfo}"
+else
+    recordInfo=""
 fi
-curdate=" $(print_date)"
-xsetroot -name "${vel_recv}${vel_trans}${dwm_alsa}$(print_bat)${show_record}${curdate} "
+
+batInfo="$(print_bat)"
+if [ -f ~/.dwm/config -a `cat ~/.dwm/config | grep -c "set show_bat true"` -gt 0 -a  "${batInfo}" != "" ]; then
+    batInfo=" [${batInfo}]"
+else
+    batInfo=""
+fi
+
+dataInfo=" $(print_date)"
+
+xsetroot -name "${memInfo}${velInfo}${alsaInfo}${batInfo}${recordInfo}${dataInfo} "
 
 # Update old values to perform new calculations
 old_received_bytes=$received_bytes
