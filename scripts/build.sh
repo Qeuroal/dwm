@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# 打patch
+ls patch | grep "diff" | xargs -I {} cat ./patch/{} | patch
+# 打after patch
+ls patch/after | grep "diff" | xargs -I {} cat ./patch/{} | patch
+
 # {{{> substitute
 if [[ -e "./config.h" ]]; then
     sed -i 's/static const char \*fonts\[\]          = { "monospace:size=10" }/static const char *fonts[]          = { "JetbrainsMonoNL Nerd Font:size=14" }/g' ./config.h
