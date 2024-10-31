@@ -12,9 +12,9 @@ index 061ad66..82a3ed2 100644
  
  /* tagging */
 @@ -64,8 +66,10 @@ static const Key keys[] = {
- 	{ MODKEY|ShiftMask,             XK_Return, spawn,          {.v = termcmd } },
- 	{ MODKEY,                       XK_grave,  togglescratch,  {.v = scratchpadcmd } },
  	{ MODKEY,                       XK_b,      togglebar,      {0} },
+ 	{ MODKEY|ShiftMask,             XK_j,      rotatestack,    {.i = +1 } },
+ 	{ MODKEY|ShiftMask,             XK_k,      rotatestack,    {.i = -1 } },
 -	{ MODKEY,                       XK_j,      focusstack,     {.i = +1 } },
 -	{ MODKEY,                       XK_k,      focusstack,     {.i = -1 } },
 +	{ MODKEY,                       XK_j,      focusstackvis,  {.i = +1 } },
