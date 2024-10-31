@@ -17,11 +17,11 @@ if [[ -e "./config.h" ]]; then
     sed -i 's/static const unsigned int gappiv    = 10/static const unsigned int gappiv    = 6/g' ./config.h
     sed -i 's/static const unsigned int gappoh    = 10/static const unsigned int gappoh    = 3/g' ./config.h
     sed -i 's/static const unsigned int gappov    = 30/static const unsigned int gappov    = 3/g' ./config.h
-    sed -i 's/MODKEY|ShiftMask,             XK_j,      focusstackhid/Mod4Mask|ShiftMask,             XK_j,      focusstackhid/g' ./config.h
-    sed -i 's/MODKEY|ShiftMask,             XK_k,      focusstackhid/Mod4Mask|ShiftMask,             XK_k,      focusstackhid/g' ./config.h
-    sed -i 's/MODKEY,                       XK_s,      show/Mod4Mask|ShiftMask,                       XK_s,      show/g' ./config.h
-    sed -i 's/MODKEY|ShiftMask,             XK_s,      showall/Mod4Mask|ShiftMask,             XK_s,      showall/g' ./config.h
-    sed -i 's/MODKEY,                       XK_h,      hide/Mod4Mask|ShiftMask,                       XK_h,      hide/g' ./config.h
+    sed -i 's/MODKEY|ShiftMask,             XK_j,      focusstackhid/MODKEY|ControlMask,             XK_j,      focusstackhid/g' ./config.h
+    sed -i 's/MODKEY|ShiftMask,             XK_k,      focusstackhid/MODKEY|ControlMask,             XK_k,      focusstackhid/g' ./config.h
+    sed -i 's/MODKEY,                       XK_s,      show/MODKEY|ControlMask,                       XK_s,      show/g' ./config.h
+    sed -i 's/MODKEY|ShiftMask,             XK_s,      showall/MODKEY|ControlMask|ShiftMask,             XK_s,      showall/g' ./config.h
+    sed -i 's/MODKEY,                       XK_h,      hide/MODKEY|ControlMask,                       XK_h,      hide/g' ./config.h
     sed -i 's/static const char \*scratchpadcmd\[\] = { "st", "-t", scratchpadname, "-g", "120x34", NULL }/static const char *scratchpadcmd[] = { "alacritty", "-t", scratchpadname, NULL }/g' ./config.h
 else
     echo "not exist config.h"
