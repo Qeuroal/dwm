@@ -13,11 +13,12 @@ diff --git a/config.def.h b/config.def.h
 index 1c0b587..d7dfb6d 100644
 --- a/config.def.h
 +++ b/config.def.h
-@@ -5,6 +5,7 @@ static const unsigned int borderpx  = 1;        /* border pixel of windows */
+@@ -5,6 +5,8 @@ static const unsigned int borderpx  = 1;        /* border pixel of windows */
  static const unsigned int snap      = 32;       /* snap pixel */
  static const int showbar            = 1;        /* 0 means no bar */
  static const int topbar             = 1;        /* 0 means bottom bar */
 +static const Bool viewontag         = True;     /* Switch view on tag switch */
++static const Bool restoreviewontag         = True;     /* Restore switch view on tag switch */
  static const char *fonts[]          = { "monospace:size=10" };
  static const char dmenufont[]       = "monospace:size=10";
  static const char col_gray1[]       = "#222222";
@@ -25,12 +26,17 @@ diff --git a/dwm.c b/dwm.c
 index 664c527..8ca2f98 100644
 --- a/dwm.c
 +++ b/dwm.c
-@@ -1660,6 +1660,8 @@ tag(const Arg *arg)
+@@ -1660,6 +1660,13 @@ tag(const Arg *arg)
  		selmon->sel->tags = arg->ui & TAGMASK;
  		focus(NULL);
  		arrange(selmon);
-+		if(viewontag && ((arg->ui & TAGMASK) != TAGMASK))
++		if(viewontag && ((arg->ui & TAGMASK) != TAGMASK)) {
 +			view(arg);
++			if (restoreviewontag) {
++				const Arg emptyarg = {0};
++				view(&emptyarg);
++			}
++		}
  	}
  }
  
