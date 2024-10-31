@@ -1,4 +1,6 @@
 #!/bin/bash
+
+# {{{> substitute
 if [[ -e "./config.h" ]]; then
     sed -i 's/static const char \*fonts\[\]          = { "monospace:size=10" }/static const char *fonts[]          = { "JetbrainsMonoNL Nerd Font:size=14" }/g' ./config.h
     sed -i 's/static const char dmenufont\[\]       = "monospace:size=10"/static const char dmenufont[]       = "JetbrainsMonoNL Nerd Font:size=14"/g' ./config.h
@@ -24,3 +26,6 @@ if [[ -e "./dwm.c" ]]; then
 else
     echo "not exist dwm.c"
 fi
+# <}}}
+
+
