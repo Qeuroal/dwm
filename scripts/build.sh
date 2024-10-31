@@ -3,7 +3,7 @@
 # 打patch
 ls patch | grep "diff" | xargs -I {} cat ./patch/{} | patch
 # 打after patch
-ls patch/after | grep "diff" | xargs -I {} cat ./patch/{} | patch
+ls patch/after | grep "diff" | xargs -I {} cat ./patch/after/{} | patch
 
 # make
 make
