@@ -1,7 +1,9 @@
 #!/bin/bash
 
 # 打patch
-ls patch | grep "diff" | xargs -I {} cat ./patch/{} | patch
+if [ -d "patch" ]; then
+    ls patch | grep "diff" | xargs -I {} cat ./patch/{} | patch
+fi
 # 打after patch
 if [ -d "patch/after" ]; then
     ls patch/after | grep "diff" | xargs -I {} cat ./patch/after/{} | patch
