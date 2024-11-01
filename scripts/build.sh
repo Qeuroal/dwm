@@ -41,6 +41,10 @@ if [[ -e "./config.h" ]]; then
     sed -i 's/{ MODKEY|Mod4Mask|ShiftMask,    XK_9,      incrovgaps,     {.i = -1 } },/\/\/ { MODKEY|Mod4Mask|ShiftMask,    XK_9,      incrovgaps,     {.i = -1 } },/g' ./config.h
     sed -i 's/{ MODKEY|Mod4Mask,              XK_0,      togglegaps,     {0} },/\/\/ { MODKEY|Mod4Mask,              XK_0,      togglegaps,     {0} },/g' ./config.h
     sed -i 's/{ MODKEY|Mod4Mask|ShiftMask,    XK_0,      defaultgaps,    {0} },/\/\/ { MODKEY|Mod4Mask|ShiftMask,    XK_0,      defaultgaps,    {0} },/g' ./config.h
+    # color
+    sed -i 's/static const unsigned int borderpx  = 1/static const unsigned int borderpx  = 3/g' ./config.h
+    sed -i '/static const char col_cyan\[\]/astatic const char col_border[]      = "#ff3030";' ./config.h
+    sed -i 's/\[SchemeSel\]  = { col_gray4, col_cyan,  col_cyan  },/[SchemeSel]  = { col_gray4, col_cyan,  col_border },/g' ./config.h
 
 else
     echo "not exist config.h"
