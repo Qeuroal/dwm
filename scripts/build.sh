@@ -25,6 +25,23 @@ if [[ -e "./config.h" ]]; then
     sed -i 's/static const char \*scratchpadcmd\[\] = { "st", "-t", scratchpadname, "-g", "120x34", NULL }/static const char *scratchpadcmd[] = { "alacritty", "-t", scratchpadname, NULL }/g' ./config.h
     # modify MODKEY to Mod4Mask
     sed -i 's/#define MODKEY Mod1Mask/#define MODKEY Mod4Mask/g' ./config.h
+    sed -i 's/{ MODKEY|Mod4Mask,              XK_u,      incrgaps,       {.i = +1 } },/\/\/ { MODKEY|Mod4Mask,              XK_u,      incrgaps,       {.i = +1 } },/g' ./config.h
+    sed -i 's/{ MODKEY|Mod4Mask|ShiftMask,    XK_u,      incrgaps,       {.i = -1 } },/\/\/ { MODKEY|Mod4Mask|ShiftMask,    XK_u,      incrgaps,       {.i = -1 } },/g' ./config.h
+    sed -i 's/{ MODKEY|Mod4Mask,              XK_i,      incrigaps,      {.i = +1 } },/\/\/ { MODKEY|Mod4Mask,              XK_i,      incrigaps,      {.i = +1 } },/g' ./config.h
+    sed -i 's/{ MODKEY|Mod4Mask|ShiftMask,    XK_i,      incrigaps,      {.i = -1 } },/\/\/ { MODKEY|Mod4Mask|ShiftMask,    XK_i,      incrigaps,      {.i = -1 } },/g' ./config.h
+    sed -i 's/{ MODKEY|Mod4Mask,              XK_o,      incrogaps,      {.i = +1 } },/\/\/ { MODKEY|Mod4Mask,              XK_o,      incrogaps,      {.i = +1 } },/g' ./config.h
+    sed -i 's/{ MODKEY|Mod4Mask|ShiftMask,    XK_o,      incrogaps,      {.i = -1 } },/\/\/ { MODKEY|Mod4Mask|ShiftMask,    XK_o,      incrogaps,      {.i = -1 } },/g' ./config.h
+    sed -i 's/{ MODKEY|Mod4Mask,              XK_6,      incrihgaps,     {.i = +1 } },/\/\/ { MODKEY|Mod4Mask,              XK_6,      incrihgaps,     {.i = +1 } },/g' ./config.h
+    sed -i 's/{ MODKEY|Mod4Mask|ShiftMask,    XK_6,      incrihgaps,     {.i = -1 } },/\/\/ { MODKEY|Mod4Mask|ShiftMask,    XK_6,      incrihgaps,     {.i = -1 } },/g' ./config.h
+    sed -i 's/{ MODKEY|Mod4Mask,              XK_7,      incrivgaps,     {.i = +1 } },/\/\/ { MODKEY|Mod4Mask,              XK_7,      incrivgaps,     {.i = +1 } },/g' ./config.h
+    sed -i 's/{ MODKEY|Mod4Mask|ShiftMask,    XK_7,      incrivgaps,     {.i = -1 } },/\/\/ { MODKEY|Mod4Mask|ShiftMask,    XK_7,      incrivgaps,     {.i = -1 } },/g' ./config.h
+    sed -i 's/{ MODKEY|Mod4Mask,              XK_8,      incrohgaps,     {.i = +1 } },/\/\/ { MODKEY|Mod4Mask,              XK_8,      incrohgaps,     {.i = +1 } },/g' ./config.h
+    sed -i 's/{ MODKEY|Mod4Mask|ShiftMask,    XK_8,      incrohgaps,     {.i = -1 } },/\/\/ { MODKEY|Mod4Mask|ShiftMask,    XK_8,      incrohgaps,     {.i = -1 } },/g' ./config.h
+    sed -i 's/{ MODKEY|Mod4Mask,              XK_9,      incrovgaps,     {.i = +1 } },/\/\/ { MODKEY|Mod4Mask,              XK_9,      incrovgaps,     {.i = +1 } },/g' ./config.h
+    sed -i 's/{ MODKEY|Mod4Mask|ShiftMask,    XK_9,      incrovgaps,     {.i = -1 } },/\/\/ { MODKEY|Mod4Mask|ShiftMask,    XK_9,      incrovgaps,     {.i = -1 } },/g' ./config.h
+    sed -i 's/{ MODKEY|Mod4Mask,              XK_0,      togglegaps,     {0} },/\/\/ { MODKEY|Mod4Mask,              XK_0,      togglegaps,     {0} },/g' ./config.h
+    sed -i 's/{ MODKEY|Mod4Mask|ShiftMask,    XK_0,      defaultgaps,    {0} },/\/\/ { MODKEY|Mod4Mask|ShiftMask,    XK_0,      defaultgaps,    {0} },/g' ./config.h
+
 else
     echo "not exist config.h"
 fi
