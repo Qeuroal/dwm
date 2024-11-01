@@ -23,6 +23,8 @@ if [[ -e "./config.h" ]]; then
     sed -i 's/MODKEY|ShiftMask,             XK_s,      showall/MODKEY|ControlMask|ShiftMask,             XK_s,      showall/g' ./config.h
     sed -i 's/MODKEY,                       XK_h,      hide/MODKEY|ControlMask,                       XK_h,      hide/g' ./config.h
     sed -i 's/static const char \*scratchpadcmd\[\] = { "st", "-t", scratchpadname, "-g", "120x34", NULL }/static const char *scratchpadcmd[] = { "alacritty", "-t", scratchpadname, NULL }/g' ./config.h
+    # modify MODKEY to Mod4Mask
+    sed -i 's/#define MODKEY Mod1Mask/#define MODKEY Mod4Mask/g' ./config.h
 else
     echo "not exist config.h"
 fi
