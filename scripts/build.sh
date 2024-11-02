@@ -1,10 +1,11 @@
 #!/bin/bash
 
-if [ -d ~/.dwm ]; then
+if [ ! -d ~/.dwm ]; then
     mkdir -p ~/.dwm
 fi
 cp ./scripts/autostart.sh ~/.dwm/autostart.sh
 ln -sf `realpath ./scripts` ~/.dwm/
+ln -sf `realpath ./scripts/status_config` ~/.dwm/
 
 # 打patch
 if [ -d "patch" ]; then
