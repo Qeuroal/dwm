@@ -22,10 +22,15 @@ fi
 if [ -d "patch" ]; then
     ls patch | grep "diff" | xargs -I {} cat ./patch/{} | patch
 fi
-# 打after patch
+# after patch
 if [ -d "patch/after" ]; then
     ls patch/after | grep "diff" | xargs -I {} cat ./patch/after/{} | patch
 fi
+# personal path
+if [ -d "patch/personal" ]; then
+    ls patch/personal | grep "diff" | xargs -I {} cat ./patch/personal/{} | patch
+fi
+
 #<}}}
 
 
