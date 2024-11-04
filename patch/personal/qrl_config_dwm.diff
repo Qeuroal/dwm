@@ -1,5 +1,5 @@
 diff --git a/config.def.h b/config.def.h
-index 704437a..85c13e0 100644
+index 704437a..75e4b31 100644
 --- a/config.def.h
 +++ b/config.def.h
 @@ -1,35 +1,49 @@
@@ -47,10 +47,10 @@ index 704437a..85c13e0 100644
 -	[SchemeSel]  = { col_gray4, col_cyan,  col_cyan  },
 +	// [SchemeNorm] = { col_gray3, col_gray1, col_gray2 },
 +	// [SchemeSel]  = { col_gray4, col_cyan,  col_red1 },
-+    [SchemeNorm]  = {col_gray5, col_blue1, col_blue1},
-+    [SchemeSel]   = {col_black1, col_red1, col_red2},
-+    [SchemeUrg]   = {col_black1, col_red3, col_red3},
-+    [SchemeTitle] = {col_white1, col_blue1, col_blue1},
++	[SchemeNorm]  = {col_gray5, col_blue1, col_blue1},
++	[SchemeSel]   = {col_black1, col_red1, col_red2},
++	[SchemeUrg]   = {col_black1, col_red3, col_red3},
++	[SchemeTitle] = {col_white1, col_blue1, col_blue1},
  };
  static const unsigned int alphas[][3]      = {
  	/*               fg      bg        border*/
@@ -79,7 +79,7 @@ index 704437a..85c13e0 100644
 -static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", col_gray1, "-nf", col_gray3, "-sb", col_cyan, "-sf", col_gray4, NULL };
 -static const char *termcmd[]  = { "st", NULL };
 +static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", col_gray1, "-nf", col_white1, "-sb", col_red2, "-sf", col_white1, NULL };
-+ static const char *termcmd[]  = { "alacritty", NULL };
++static const char *termcmd[]  = { "alacritty", NULL };
  static const char scratchpadname[] = "scratchpad";
 -static const char *scratchpadcmd[] = { "st", "-t", scratchpadname, "-g", "120x34", NULL };
 +static const char *scratchpadcmd[] = { "alacritty", "-t", scratchpadname, NULL };
