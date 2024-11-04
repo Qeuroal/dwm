@@ -7,7 +7,7 @@ if [ ! -d ~/.dwm ]; then
 fi
 cp ./scripts/autostart.sh ~/.dwm/autostart.sh
 ln -sf `realpath ./scripts` ~/.dwm/
-ln -sf `realpath ./scripts/status_config` ~/.dwm/
+cp -f `realpath ./scripts/status_config` ~/.dwm/
 #<}}}
 
 #{{{> .xinitrc
