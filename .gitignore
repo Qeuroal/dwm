@@ -3,3 +3,4 @@
 # config.h
 *.bak
 *.orig
+tmp*
