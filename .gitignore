@@ -2,5 +2,4 @@
 # *.diff
 # config.h
 *.bak
-*.orig
 tmp*
