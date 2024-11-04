@@ -1,8 +1,8 @@
 diff --git a/config.def.h b/config.def.h
-index 704437a..1816715 100644
+index 704437a..85c13e0 100644
 --- a/config.def.h
 +++ b/config.def.h
-@@ -1,35 +1,43 @@
+@@ -1,35 +1,49 @@
  /* See LICENSE file for copyright and license details. */
  
  /* appearance */
@@ -30,9 +30,15 @@ index 704437a..1816715 100644
  static const char col_gray2[]       = "#444444";
  static const char col_gray3[]       = "#bbbbbb";
  static const char col_gray4[]       = "#eeeeee";
++static const char col_gray5[]       = "#aaaaaa";
  static const char col_cyan[]        = "#005577";
-+static const char col_red1[]        = "#F94D52";
-+static const char col_red2[]        = "#F91F2B";
++static const char col_red1[]        = "#f94d52";
++static const char col_red2[]        = "#f91f2b";
++static const char col_red3[]        = "#f46067";
++static const char col_black1[]      = "#000000";
++static const char col_white1[]      = "#ffffff";
++static const char col_blue1[]       = "#222b2e";
++static const char col_yellow1[]     = "#fffb0d";
  static const unsigned int baralpha = 0xd0;
  static const unsigned int borderalpha = OPAQUE;
  static const char *colors[][3]      = {
@@ -41,10 +47,10 @@ index 704437a..1816715 100644
 -	[SchemeSel]  = { col_gray4, col_cyan,  col_cyan  },
 +	// [SchemeNorm] = { col_gray3, col_gray1, col_gray2 },
 +	// [SchemeSel]  = { col_gray4, col_cyan,  col_red1 },
-+    [SchemeNorm]  = {"#aaaaaa", "#222B2E", "#222B2E"},
-+    [SchemeSel]   = {"#000000", "#F94D52", "#F91F2B"},
-+    [SchemeUrg]   = {"#000000", "#F46067", "#F46067"},
-+    [SchemeTitle] = {"#ffffff", "#222B2E", "#222B2E"},
++    [SchemeNorm]  = {col_gray5, col_blue1, col_blue1},
++    [SchemeSel]   = {col_black1, col_red1, col_red2},
++    [SchemeUrg]   = {col_black1, col_red3, col_red3},
++    [SchemeTitle] = {col_white1, col_blue1, col_blue1},
  };
  static const unsigned int alphas[][3]      = {
  	/*               fg      bg        border*/
@@ -57,7 +63,7 @@ index 704437a..1816715 100644
  };
  
  /* tagging */
-@@ -74,7 +82,7 @@ static const Layout layouts[] = {
+@@ -74,7 +88,7 @@ static const Layout layouts[] = {
  };
  
  /* key definitions */
@@ -66,11 +72,13 @@ index 704437a..1816715 100644
  #define TAGKEYS(KEY,TAG) \
  	{ MODKEY,                       KEY,      view,           {.ui = 1 << TAG} }, \
  	{ MODKEY|ControlMask,           KEY,      toggleview,     {.ui = 1 << TAG} }, \
-@@ -87,9 +95,9 @@ static const Layout layouts[] = {
+@@ -86,10 +100,10 @@ static const Layout layouts[] = {
+ 
  /* commands */
  static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() */
- static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", col_gray1, "-nf", col_gray3, "-sb", col_cyan, "-sf", col_gray4, NULL };
+-static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", col_gray1, "-nf", col_gray3, "-sb", col_cyan, "-sf", col_gray4, NULL };
 -static const char *termcmd[]  = { "st", NULL };
++static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", col_gray1, "-nf", col_white1, "-sb", col_red2, "-sf", col_white1, NULL };
 + static const char *termcmd[]  = { "alacritty", NULL };
  static const char scratchpadname[] = "scratchpad";
 -static const char *scratchpadcmd[] = { "st", "-t", scratchpadname, "-g", "120x34", NULL };
@@ -78,7 +86,7 @@ index 704437a..1816715 100644
  
  static const Key keys[] = {
  	/* modifier                     key        function        argument */
-@@ -109,22 +117,22 @@ static const Key keys[] = {
+@@ -109,22 +123,22 @@ static const Key keys[] = {
  	{ MODKEY|ShiftMask,             XK_l,      setcfact,       {.f = -0.25} },
  	{ MODKEY|ShiftMask,             XK_o,      setcfact,       {.f =  0.00} },
  	{ MODKEY,                       XK_Return, zoom,           {0} },
@@ -117,7 +125,7 @@ index 704437a..1816715 100644
  	{ MODKEY,                       XK_Tab,    view,           {0} },
  	{ MODKEY|ShiftMask,             XK_c,      killclient,     {0} },
  	{ MODKEY,                       XK_t,      setlayout,      {.v = &layouts[0]} },
-@@ -148,7 +156,7 @@ static const Key keys[] = {
+@@ -148,7 +162,7 @@ static const Key keys[] = {
  	TAGKEYS(                        XK_7,                      6)
  	TAGKEYS(                        XK_8,                      7)
  	TAGKEYS(                        XK_9,                      8)
