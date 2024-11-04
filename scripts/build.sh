@@ -28,9 +28,9 @@ fi
 if [ -d "patch/after" ]; then
     ls patch/after | grep "diff" | xargs -I {} cat ./patch/after/{} | patch
 fi
-# personal path
-if [ -d "patch/personal" ]; then
-    ls patch/personal | grep "diff" | xargs -I {} cat ./patch/personal/{} | patch
+# custom path
+if [ -d "patch/custom" ]; then
+    ls patch/custom | grep "diff" | xargs -I {} cat ./patch/custom/{} | patch
 fi
 
 #<}}}
