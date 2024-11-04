@@ -138,7 +138,7 @@ print_bat(){
 }
 
 print_date(){
-	date '+%Y.%m.%d %H:%M'
+	date '+%m.%d %H:%M'
 }
 
 show_record(){
@@ -208,9 +208,9 @@ else
     batInfo=""
 fi
 
-dataInfo=" $(print_date)"
+dateInfo=" $(print_date)"
 
-xsetroot -name "${memInfo}${velInfo}${alsaInfo}${batInfo}${recordInfo}${dataInfo} "
+xsetroot -name "${memInfo}${velInfo}${alsaInfo}${batInfo}${recordInfo}${dateInfo} "
 
 # Update old values to perform new calculations
 old_received_bytes=$received_bytes
