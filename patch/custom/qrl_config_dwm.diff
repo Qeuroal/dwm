@@ -79,10 +79,10 @@ index 704437a..75e4b31 100644
 -static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", col_gray1, "-nf", col_gray3, "-sb", col_cyan, "-sf", col_gray4, NULL };
 -static const char *termcmd[]  = { "st", NULL };
 +static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", col_gray1, "-nf", col_white1, "-sb", col_red2, "-sf", col_white1, NULL };
-+static const char *termcmd[]  = { "alacritty", NULL };
++static const char *termcmd[]  = { "ghostty", NULL };
  static const char scratchpadname[] = "scratchpad";
 -static const char *scratchpadcmd[] = { "st", "-t", scratchpadname, "-g", "120x34", NULL };
-+static const char *scratchpadcmd[] = { "alacritty", "-t", scratchpadname, NULL };
++static const char *scratchpadcmd[] = { "ghostty", "-t", scratchpadname, NULL };
  
  static const Key keys[] = {
  	/* modifier                     key        function        argument */
