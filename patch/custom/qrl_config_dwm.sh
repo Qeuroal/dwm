@@ -5,7 +5,7 @@ make
 if [[ -e "./config.h" ]]; then
     sed -i 's/static const char \*fonts\[\]          = { "monospace:size=10" }/static const char *fonts[]          = { "JetbrainsMonoNL Nerd Font:size=14" }/g' ./config.h
     sed -i 's/static const char dmenufont\[\]       = "monospace:size=10"/static const char dmenufont[]       = "JetbrainsMonoNL Nerd Font:size=14"/g' ./config.h
-    sed -i 's/static const char \*termcmd\[\]  = { "st", NULL }/ static const char *termcmd[]  = { "ghostty", NULL }/g' ./config.h
+    sed -i 's/static const char \*termcmd\[\]  = { "st", NULL }/ static const char *termcmd[]  = { "alacritty", NULL }/g' ./config.h
     sed -i 's/static const unsigned int gappih    = 20/static const unsigned int gappih    = 6/g' ./config.h
     sed -i 's/static const unsigned int gappiv    = 10/static const unsigned int gappiv    = 6/g' ./config.h
     sed -i 's/static const unsigned int gappoh    = 10/static const unsigned int gappoh    = 3/g' ./config.h
@@ -15,7 +15,7 @@ if [[ -e "./config.h" ]]; then
     sed -i 's/MODKEY,                       XK_s,      show/MODKEY|ControlMask,                       XK_s,      show/g' ./config.h
     sed -i 's/MODKEY|ShiftMask,             XK_s,      showall/MODKEY|ControlMask|ShiftMask,             XK_s,      showall/g' ./config.h
     sed -i 's/MODKEY,                       XK_h,      hide/MODKEY|ControlMask,                       XK_h,      hide/g' ./config.h
-    sed -i 's/static const char \*scratchpadcmd\[\] = { "st", "-t", scratchpadname, "-g", "120x34", NULL }/static const char *scratchpadcmd[] = { "ghostty", "--title", scratchpadname, NULL }/g' ./config.h
+    sed -i 's/static const char \*scratchpadcmd\[\] = { "st", "-t", scratchpadname, "-g", "120x34", NULL }/static const char *scratchpadcmd[] = { "alacritty", "-t", scratchpadname, NULL }/g' ./config.h
     # modify MODKEY to Mod4Mask
     sed -i 's/#define MODKEY Mod1Mask/#define MODKEY Mod4Mask/g' ./config.h
     sed -i 's/{ MODKEY|Mod4Mask,              XK_u,      incrgaps,       {.i = +1 } },/\/\/ { MODKEY|Mod4Mask,              XK_u,      incrgaps,       {.i = +1 } },/g' ./config.h
