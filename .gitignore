@@ -3,3 +3,4 @@
 # config.h
 *.bak
 tmp*
+.aider*
