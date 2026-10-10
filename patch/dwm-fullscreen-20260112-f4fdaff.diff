@@ -1,18 +1,18 @@
-From 54719285bd1a984e2efce6e8a8eab184fec11abf Mon Sep 17 00:00:00 2001
-From: Sermak <sermak@jarvis.com>
-Date: Mon, 8 Jul 2019 01:06:44 +0200
-Subject: [PATCH] Simulate toggleable fullscreen mode
+From f4fdaff5cf85287ad11272902054cdbaf44535fe Mon Sep 17 00:00:00 2001
+From: Savar <savar95x@gmail.com>
+Date: Mon, 12 Jan 2026 17:26:41 +0530
+Subject: [PATCH] fullscreen: fix toggle logic loop by checking active layout
 
 ---
  config.def.h |  1 +
- dwm.c        | 14 ++++++++++++++
- 2 files changed, 15 insertions(+)
+ dwm.c        | 17 +++++++++++++++++
+ 2 files changed, 18 insertions(+)
 
 diff --git a/config.def.h b/config.def.h
-index 1c0b587..f774cc5 100644
+index 81c3fc0..ef36491 100644
 --- a/config.def.h
 +++ b/config.def.h
-@@ -76,6 +76,7 @@ static Key keys[] = {
+@@ -78,6 +78,7 @@ static const Key keys[] = {
  	{ MODKEY,                       XK_t,      setlayout,      {.v = &layouts[0]} },
  	{ MODKEY,                       XK_f,      setlayout,      {.v = &layouts[1]} },
  	{ MODKEY,                       XK_m,      setlayout,      {.v = &layouts[2]} },
@@ -21,7 +21,7 @@ index 1c0b587..f774cc5 100644
  	{ MODKEY|ShiftMask,             XK_space,  togglefloating, {0} },
  	{ MODKEY,                       XK_0,      view,           {.ui = ~0 } },
 diff --git a/dwm.c b/dwm.c
-index 4465af1..04b1e06 100644
+index 8f4fa75..a2237a9 100644
 --- a/dwm.c
 +++ b/dwm.c
 @@ -199,6 +199,7 @@ static void sendmon(Client *c, Monitor *m);
@@ -32,7 +32,7 @@ index 4465af1..04b1e06 100644
  static void setlayout(const Arg *arg);
  static void setmfact(const Arg *arg);
  static void setup(void);
-@@ -1497,6 +1498,19 @@ setfullscreen(Client *c, int fullscreen)
+@@ -1507,6 +1508,22 @@ setfullscreen(Client *c, int fullscreen)
  	}
  }
  
@@ -40,17 +40,21 @@ index 4465af1..04b1e06 100644
 +void
 +fullscreen(const Arg *arg)
 +{
-+	if (selmon->showbar) {
++	if (selmon->pertag->ltidxs[selmon->pertag->curtag][selmon->sellt] != &layouts[2]) {
 +		for(last_layout = (Layout *)layouts; last_layout != selmon->lt[selmon->sellt]; last_layout++);
 +		setlayout(&((Arg) { .v = &layouts[2] }));
++		if (selmon->showbar)
++			togglebar(arg);
 +	} else {
 +		setlayout(&((Arg) { .v = last_layout }));
++		if (!selmon->showbar)
++			togglebar(arg);
 +	}
-+	togglebar(arg);
 +}
 +
  void
  setlayout(const Arg *arg)
  {
 -- 
-2.22.0
+2.51.2
+
