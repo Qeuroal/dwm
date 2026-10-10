@@ -1,5 +1,7 @@
 #!/bin/bash
 
+git restore . && git clean -fd
+
 #{{{> .dwm
 #
 if [ ! -d ~/.dwm ]; then
@@ -9,6 +11,13 @@ cp ./scripts/autostart.sh ~/.dwm/autostart.sh
 ln -sf `realpath ./scripts` ~/.dwm/
 if [ ! -e ~/.dwm/status_config ]; then
     cp -f `realpath ./scripts/status_config` ~/.dwm/
+fi
+#<}}}
+
+#{{{> ~/.xprofile
+if [[ -e ./dotfiles/.xprofile ]]; then
+    [[ -e ~/.xprofile ]] && rm -f ~/.xprofile
+    ln -sf $(realpath ./dotfiles/.xprofile) ~/.xprofile
 fi
 #<}}}
 
