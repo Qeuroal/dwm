@@ -30,7 +30,7 @@ diff --git a/config.def.h b/config.def.h
 -static unsigned int baralpha        = 0xd0;
 -static unsigned int borderalpha     = OPAQUE;
 +static const Bool restoreviewontag         = True;     /* Restore switch view on tag switch */
-+static const char *fonts[]          = { "JetbrainsMonoNL Nerd Font:size=14" };
++static const char *fonts[]          = { "JetbrainsMonoNL Nerd Font:size=14", "Noto Sans SC:size=14" };
 +static const char dmenufont[]       = "JetbrainsMonoNL Nerd Font:size=14";
  static const char col_gray1[]       = "#222222";
  static const char col_gray2[]       = "#444444";
