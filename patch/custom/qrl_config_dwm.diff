@@ -74,7 +74,16 @@ diff --git a/config.def.h b/config.def.h
  
  static const Rule rules[] = {
  	/* xprop(1):
-@@ -49,7 +72,7 @@
+@@ -41,6 +64,8 @@
+ 	 */
+ 	/* class      instance    title       tags mask     isfloating   monitor */
+ 	{ "Gimp",     NULL,       NULL,       0,            1,           -1 },
++	{ "wechat",   NULL,       NULL,       0,            1,           -1 },
++	{ "Clash-verge", NULL,    NULL,       0,            1,           -1 },
+ 	{ "Firefox",  NULL,       NULL,       1 << 8,       0,           -1 },
+ };
+ 
+@@ -49,7 +74,7 @@
  static const int nmaster     = 1;    /* number of clients in master area */
  static const int resizehints = 1;    /* 1 means respect size hints in tiled resizals */
  static const int lockfullscreen = 1; /* 1 will force focus on the fullscreen window */
@@ -83,7 +92,7 @@ diff --git a/config.def.h b/config.def.h
  
  #define FORCE_VSPLIT 1  /* nrowgrid layout: force two clients to always split vertically */
  #include "vanitygaps.c"
-@@ -74,7 +97,7 @@
+@@ -74,7 +99,7 @@
  };
  
  /* key definitions */
@@ -92,7 +101,7 @@ diff --git a/config.def.h b/config.def.h
  #define TAGKEYS(KEY,TAG) \
  	{ MODKEY,                       KEY,      view,           {.ui = 1 << TAG} }, \
  	{ MODKEY|ControlMask,           KEY,      toggleview,     {.ui = 1 << TAG} }, \
-@@ -86,13 +109,18 @@
+@@ -86,13 +111,18 @@
  
  /* commands */
  static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() */
@@ -114,7 +123,7 @@ diff --git a/config.def.h b/config.def.h
  	{ MODKEY,                       XK_p,      spawn,          {.v = dmenucmd } },
  	{ MODKEY|ShiftMask,             XK_Return, spawn,          {.v = termcmd } },
  	{ MODKEY,                       XK_grave,  togglescratch,  {.v = scratchpadcmd } },
-@@ -109,22 +137,22 @@
+@@ -109,22 +139,22 @@
  	{ MODKEY|ShiftMask,             XK_l,      setcfact,       {.f = -0.25} },
  	{ MODKEY|ShiftMask,             XK_o,      setcfact,       {.f =  0.00} },
  	{ MODKEY,                       XK_Return, zoom,           {0} },
@@ -153,7 +162,7 @@ diff --git a/config.def.h b/config.def.h
  	{ MODKEY,                       XK_Tab,    view,           {0} },
  	{ MODKEY|ShiftMask,             XK_c,      killclient,     {0} },
  	{ MODKEY,                       XK_t,      setlayout,      {.v = &layouts[0]} },
-@@ -148,7 +176,7 @@
+@@ -148,7 +178,7 @@
  	TAGKEYS(                        XK_7,                      6)
  	TAGKEYS(                        XK_8,                      7)
  	TAGKEYS(                        XK_9,                      8)
@@ -196,7 +205,23 @@ diff --git a/dwm.c b/dwm.c
  			drw_text(drw, x, 0, w, bh, lrpad / 2, m->sel->name, 0);
  			if (m->sel->isfloating)
  				drw_rect(drw, x + boxs, boxs, boxw, boxw, m->sel->isfixed, 0);
-@@ -1906,16 +1906,13 @@
+@@ -1289,8 +1289,14 @@
+ 	grabbuttons(c, 0);
+ 	if (!c->isfloating)
+ 		c->isfloating = c->oldstate = trans != None || c->isfixed;
+-	if (c->isfloating)
++	if (c->isfloating) {
++		/* Center new floating windows in the monitor's usable area. */
++		if (!c->isfullscreen) {
++			c->x = c->mon->wx + MAX(0, (c->mon->ww - WIDTH(c)) / 2);
++			c->y = c->mon->wy + MAX(0, (c->mon->wh - HEIGHT(c)) / 2);
++		}
+ 		XRaiseWindow(dpy, c->win);
++	}
+ 	attach(c);
+ 	attachstack(c);
+ 	XChangeProperty(dpy, root, netatom[NetClientList], XA_WINDOW, 32, PropModeAppend,
+@@ -1906,16 +1912,13 @@
  void
  fullscreen(const Arg *arg)
  {
@@ -217,7 +242,7 @@ diff --git a/dwm.c b/dwm.c
  }
  
  void
-@@ -2022,9 +2019,8 @@
+@@ -2022,9 +2025,8 @@
  	cursor[CurMove] = drw_cur_create(drw, XC_fleur);
  	/* init appearance */
  	scheme = ecalloc(LENGTH(colors), sizeof(Clr *));
@@ -228,7 +253,7 @@ diff --git a/dwm.c b/dwm.c
  	/* init system tray */
  	updatesystray();
  	/* init bars */
-@@ -2152,8 +2148,13 @@
+@@ -2152,8 +2154,13 @@
  		selmon->sel->tags = arg->ui & TAGMASK;
  		focus(NULL);
  		arrange(selmon);
@@ -243,7 +268,7 @@ diff --git a/dwm.c b/dwm.c
  	}
  }
  
-@@ -2705,8 +2706,11 @@
+@@ -2705,8 +2712,11 @@
  		if (c == selmon->sel && wmh->flags & XUrgencyHint) {
  			wmh->flags &= ~XUrgencyHint;
  			XSetWMHints(dpy, c->win, wmh);
