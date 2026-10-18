@@ -1,0 +1,42 @@
+--- a/dwm.c
++++ b/dwm.c
+@@ -2094,8 +2094,37 @@
+ {
+ 	struct sigaction sa;
+ 
+-	if (arg->v == dmenucmd)
+-		dmenumon[0] = '0' + selmon->num;
++	if (arg->v == dmenucmd) {
++		static char monarg[3 * sizeof(int) + 1];
++		size_t k;
++		int mon = 0;
++#ifdef XINERAMA
++		if (XineramaIsActive(dpy)) {
++			int i, n;
++			XineramaScreenInfo *info = XineramaQueryScreens(dpy, &n);
++
++			/* dmenu -m uses the original, unsorted Xinerama indices. */
++			if (info) {
++				for (i = 0; i < n; i++)
++					if (info[i].x_org == selmon->mx
++					&& info[i].y_org == selmon->my
++					&& info[i].width == selmon->mw
++					&& info[i].height == selmon->mh) {
++						mon = i;
++						break;
++					}
++				XFree(info);
++			}
++		}
++#endif
++		snprintf(monarg, sizeof monarg, "%d", mon);
++		/* Locate -m so rearranging dmenucmd does not break the mapping. */
++		for (k = 1; dmenucmd[k] && dmenucmd[k + 1]; k++)
++			if (strcmp(dmenucmd[k], "-m") == 0) {
++				dmenucmd[k + 1] = monarg;
++				break;
++			}
++	}
+ 	selmon->tagset[selmon->seltags] &= ~scratchtag;
+ 	if (fork() == 0) {
+ 		if (dpy)
