@@ -74,16 +74,32 @@ diff --git a/config.def.h b/config.def.h
  
  static const Rule rules[] = {
  	/* xprop(1):
-@@ -41,6 +64,8 @@
+@@ -41,7 +64,24 @@
  	 */
  	/* class      instance    title       tags mask     isfloating   monitor */
  	{ "Gimp",     NULL,       NULL,       0,            1,           -1 },
 +	{ "wechat",   NULL,       NULL,       0,            1,           -1 },
 +	{ "Clash-verge", NULL,    NULL,       0,            1,           -1 },
  	{ "Firefox",  NULL,       NULL,       1 << 8,       0,           -1 },
++};
++
++/* Floating window size: first matching entry wins.
++ * Percentages include borders and use the monitor's usable area.
++ * 0 keeps the application's size; NULL matches any class/instance/title.
++ */
++static const struct {
++	const char *class, *instance, *title;
++	int width_percent, height_percent;
++} floatsizerules[] = {
++	/* Run: `xprop WM_CLASS _NET_WM_NAME`, then click the target window.
++	 * WM_CLASS = "instance", "class"; _NET_WM_NAME = title.
++	 */
++	/* class          instance  title  width %  height % */
++	{ "Clash-verge",   NULL,     NULL,  70,      80 },
  };
  
-@@ -49,7 +74,7 @@
+ /* layout(s) */
+@@ -49,7 +89,7 @@
  static const int nmaster     = 1;    /* number of clients in master area */
  static const int resizehints = 1;    /* 1 means respect size hints in tiled resizals */
  static const int lockfullscreen = 1; /* 1 will force focus on the fullscreen window */
@@ -92,7 +108,7 @@ diff --git a/config.def.h b/config.def.h
  
  #define FORCE_VSPLIT 1  /* nrowgrid layout: force two clients to always split vertically */
  #include "vanitygaps.c"
-@@ -74,7 +99,7 @@
+@@ -74,7 +114,7 @@
  };
  
  /* key definitions */
@@ -101,7 +117,7 @@ diff --git a/config.def.h b/config.def.h
  #define TAGKEYS(KEY,TAG) \
  	{ MODKEY,                       KEY,      view,           {.ui = 1 << TAG} }, \
  	{ MODKEY|ControlMask,           KEY,      toggleview,     {.ui = 1 << TAG} }, \
-@@ -86,13 +111,18 @@
+@@ -86,13 +126,18 @@
  
  /* commands */
  static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() */
@@ -123,7 +139,7 @@ diff --git a/config.def.h b/config.def.h
  	{ MODKEY,                       XK_p,      spawn,          {.v = dmenucmd } },
  	{ MODKEY|ShiftMask,             XK_Return, spawn,          {.v = termcmd } },
  	{ MODKEY,                       XK_grave,  togglescratch,  {.v = scratchpadcmd } },
-@@ -109,22 +139,22 @@
+@@ -109,22 +154,22 @@
  	{ MODKEY|ShiftMask,             XK_l,      setcfact,       {.f = -0.25} },
  	{ MODKEY|ShiftMask,             XK_o,      setcfact,       {.f =  0.00} },
  	{ MODKEY,                       XK_Return, zoom,           {0} },
@@ -162,7 +178,7 @@ diff --git a/config.def.h b/config.def.h
  	{ MODKEY,                       XK_Tab,    view,           {0} },
  	{ MODKEY|ShiftMask,             XK_c,      killclient,     {0} },
  	{ MODKEY,                       XK_t,      setlayout,      {.v = &layouts[0]} },
-@@ -148,7 +178,7 @@
+@@ -148,7 +193,7 @@
  	TAGKEYS(                        XK_7,                      6)
  	TAGKEYS(                        XK_8,                      7)
  	TAGKEYS(                        XK_9,                      8)
@@ -196,7 +212,25 @@ diff --git a/dwm.c b/dwm.c
  enum { NetSupported, NetWMName, NetWMState, NetWMCheck,
         NetSystemTray, NetSystemTrayOP, NetSystemTrayOrientation, NetSystemTrayOrientationHorz,
         NetWMFullscreen, NetActiveWindow, NetWMWindowType,
-@@ -895,7 +895,7 @@
+@@ -374,6 +374,17 @@
+ 				c->mon = m;
+ 		}
+ 	}
++	for (i = 0; c->isfloating && i < LENGTH(floatsizerules); i++) {
++		if ((!floatsizerules[i].class || strstr(class, floatsizerules[i].class))
++		&& (!floatsizerules[i].instance || strstr(instance, floatsizerules[i].instance))
++		&& (!floatsizerules[i].title || strstr(c->name, floatsizerules[i].title))) {
++			if (floatsizerules[i].width_percent > 0 && floatsizerules[i].width_percent <= 100)
++				c->w = MAX(1, c->mon->ww * floatsizerules[i].width_percent / 100 - 2 * borderpx);
++			if (floatsizerules[i].height_percent > 0 && floatsizerules[i].height_percent <= 100)
++				c->h = MAX(1, c->mon->wh * floatsizerules[i].height_percent / 100 - 2 * borderpx);
++			break;
++		}
++	}
+ 	if (ch.res_class)
+ 		XFree(ch.res_class);
+ 	if (ch.res_name)
+@@ -895,7 +906,7 @@
  
  	if ((w = m->ww - tw - stw - x) > bh) {
  		if (m->sel) {
@@ -205,7 +239,7 @@ diff --git a/dwm.c b/dwm.c
  			drw_text(drw, x, 0, w, bh, lrpad / 2, m->sel->name, 0);
  			if (m->sel->isfloating)
  				drw_rect(drw, x + boxs, boxs, boxw, boxw, m->sel->isfixed, 0);
-@@ -1289,8 +1289,14 @@
+@@ -1289,8 +1300,14 @@
  	grabbuttons(c, 0);
  	if (!c->isfloating)
  		c->isfloating = c->oldstate = trans != None || c->isfixed;
@@ -221,7 +255,7 @@ diff --git a/dwm.c b/dwm.c
  	attach(c);
  	attachstack(c);
  	XChangeProperty(dpy, root, netatom[NetClientList], XA_WINDOW, 32, PropModeAppend,
-@@ -1906,16 +1912,13 @@
+@@ -1906,16 +1923,13 @@
  void
  fullscreen(const Arg *arg)
  {
@@ -242,7 +276,7 @@ diff --git a/dwm.c b/dwm.c
  }
  
  void
-@@ -2022,9 +2025,8 @@
+@@ -2022,9 +2036,8 @@
  	cursor[CurMove] = drw_cur_create(drw, XC_fleur);
  	/* init appearance */
  	scheme = ecalloc(LENGTH(colors), sizeof(Clr *));
@@ -253,7 +287,7 @@ diff --git a/dwm.c b/dwm.c
  	/* init system tray */
  	updatesystray();
  	/* init bars */
-@@ -2152,8 +2154,13 @@
+@@ -2152,8 +2165,13 @@
  		selmon->sel->tags = arg->ui & TAGMASK;
  		focus(NULL);
  		arrange(selmon);
@@ -268,7 +302,7 @@ diff --git a/dwm.c b/dwm.c
  	}
  }
  
-@@ -2705,8 +2712,11 @@
+@@ -2705,8 +2723,11 @@
  		if (c == selmon->sel && wmh->flags & XUrgencyHint) {
  			wmh->flags &= ~XUrgencyHint;
  			XSetWMHints(dpy, c->win, wmh);
