@@ -117,7 +117,7 @@ diff --git a/config.def.h b/config.def.h
  #define TAGKEYS(KEY,TAG) \
  	{ MODKEY,                       KEY,      view,           {.ui = 1 << TAG} }, \
  	{ MODKEY|ControlMask,           KEY,      toggleview,     {.ui = 1 << TAG} }, \
-@@ -86,13 +126,18 @@
+@@ -86,6 +126,6 @@
  
  /* commands */
  static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() */
@@ -126,8 +126,9 @@ diff --git a/config.def.h b/config.def.h
 +static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", col_gray1, "-nf", col_white1, "-sb", col_red2, "-sf", col_white1, NULL };
 +static const char *termcmd[]  = { "ghostty", NULL };
  static const char scratchpadname[] = "scratchpad";
+@@ -95,7 +135,12 @@
 -static const char *scratchpadcmd[] = { "st", "-t", scratchpadname, "-g", "120x34", NULL };
-+static const char *scratchpadcmd[] = { "ghostty", "--title=scratchpad", "--window-width=120", "--window-height=34", NULL };
++static const char *scratchpadcmd[] = { "ghostty", "--title=scratchpad", NULL };
  
  static const Key keys[] = {
  	/* modifier                     key        function        argument */
@@ -139,7 +140,7 @@ diff --git a/config.def.h b/config.def.h
  	{ MODKEY,                       XK_p,      spawn,          {.v = dmenucmd } },
  	{ MODKEY|ShiftMask,             XK_Return, spawn,          {.v = termcmd } },
  	{ MODKEY,                       XK_grave,  togglescratch,  {.v = scratchpadcmd } },
-@@ -109,22 +154,22 @@
+@@ -112,22 +157,22 @@
  	{ MODKEY|ShiftMask,             XK_l,      setcfact,       {.f = -0.25} },
  	{ MODKEY|ShiftMask,             XK_o,      setcfact,       {.f =  0.00} },
  	{ MODKEY,                       XK_Return, zoom,           {0} },
@@ -178,7 +179,7 @@ diff --git a/config.def.h b/config.def.h
  	{ MODKEY,                       XK_Tab,    view,           {0} },
  	{ MODKEY|ShiftMask,             XK_c,      killclient,     {0} },
  	{ MODKEY,                       XK_t,      setlayout,      {.v = &layouts[0]} },
-@@ -148,7 +193,7 @@
+@@ -151,7 +196,7 @@
  	TAGKEYS(                        XK_7,                      6)
  	TAGKEYS(                        XK_8,                      7)
  	TAGKEYS(                        XK_9,                      8)
@@ -239,7 +240,7 @@ diff --git a/dwm.c b/dwm.c
  			drw_text(drw, x, 0, w, bh, lrpad / 2, m->sel->name, 0);
  			if (m->sel->isfloating)
  				drw_rect(drw, x + boxs, boxs, boxw, boxw, m->sel->isfixed, 0);
-@@ -1289,8 +1300,14 @@
+@@ -1291,8 +1302,14 @@
  	grabbuttons(c, 0);
  	if (!c->isfloating)
  		c->isfloating = c->oldstate = trans != None || c->isfixed;
@@ -255,7 +256,7 @@ diff --git a/dwm.c b/dwm.c
  	attach(c);
  	attachstack(c);
  	XChangeProperty(dpy, root, netatom[NetClientList], XA_WINDOW, 32, PropModeAppend,
-@@ -1906,16 +1923,13 @@
+@@ -1908,16 +1925,13 @@
  void
  fullscreen(const Arg *arg)
  {
@@ -276,7 +277,7 @@ diff --git a/dwm.c b/dwm.c
  }
  
  void
-@@ -2022,9 +2036,8 @@
+@@ -2024,9 +2038,8 @@
  	cursor[CurMove] = drw_cur_create(drw, XC_fleur);
  	/* init appearance */
  	scheme = ecalloc(LENGTH(colors), sizeof(Clr *));
@@ -287,7 +288,7 @@ diff --git a/dwm.c b/dwm.c
  	/* init system tray */
  	updatesystray();
  	/* init bars */
-@@ -2152,8 +2165,13 @@
+@@ -2154,8 +2167,13 @@
  		selmon->sel->tags = arg->ui & TAGMASK;
  		focus(NULL);
  		arrange(selmon);
@@ -302,7 +303,7 @@ diff --git a/dwm.c b/dwm.c
  	}
  }
  
-@@ -2705,8 +2723,11 @@
+@@ -2707,8 +2725,11 @@
  		if (c == selmon->sel && wmh->flags & XUrgencyHint) {
  			wmh->flags &= ~XUrgencyHint;
  			XSetWMHints(dpy, c->win, wmh);

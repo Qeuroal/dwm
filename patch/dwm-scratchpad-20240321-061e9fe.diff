@@ -4,19 +4,22 @@ Date: Thu, 21 Mar 2024 15:16:39 +0300
 Subject: [PATCH] Patch updated to 6.5
 
 ---
- config.def.h |  3 +++
- dwm.c        | 34 ++++++++++++++++++++++++++++++++++
- 2 files changed, 37 insertions(+)
+ config.def.h |  6 ++++++
+ dwm.c        | 36 ++++++++++++++++++++++++++++++++++++
+ 2 files changed, 42 insertions(+)
 
 diff --git a/config.def.h b/config.def.h
 index 9efa774..0b8b310 100644
 --- a/config.def.h
 +++ b/config.def.h
-@@ -59,11 +59,14 @@ static const Layout layouts[] = {
+@@ -59,11 +59,17 @@ static const Layout layouts[] = {
  static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() */
  static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", col_gray1, "-nf", col_gray3, "-sb", col_cyan, "-sf", col_gray4, NULL };
  static const char *termcmd[]  = { "st", NULL };
 +static const char scratchpadname[] = "scratchpad";
++/* Scratchpad size as percentages of the monitor's usable area. */
++static const int scratchpad_width_percent  = 55;
++static const int scratchpad_height_percent = 63;
 +static const char *scratchpadcmd[] = { "st", "-t", scratchpadname, "-g", "120x34", NULL };
  
  static const Key keys[] = {
@@ -48,7 +51,7 @@ index f1d86b2..a8db21a 100644
  /* compile-time check if all tags fit into an unsigned int bit array. */
  struct NumTags { char limitexceeded[LENGTH(tags) > 31 ? -1 : 1]; };
  
-@@ -1061,6 +1064,14 @@ manage(Window w, XWindowAttributes *wa)
+@@ -1061,6 +1064,16 @@ manage(Window w, XWindowAttributes *wa)
  	c->y = MAX(c->y, c->mon->wy);
  	c->bw = borderpx;
  
@@ -56,6 +59,8 @@ index f1d86b2..a8db21a 100644
 +	if (!strcmp(c->name, scratchpadname)) {
 +		c->mon->tagset[c->mon->seltags] |= c->tags = scratchtag;
 +		c->isfloating = True;
++		c->w = MAX(1, c->mon->ww * MIN(100, MAX(1, scratchpad_width_percent)) / 100 - 2 * c->bw);
++		c->h = MAX(1, c->mon->wh * MIN(100, MAX(1, scratchpad_height_percent)) / 100 - 2 * c->bw);
 +		c->x = c->mon->wx + (c->mon->ww / 2 - WIDTH(c) / 2);
 +		c->y = c->mon->wy + (c->mon->wh / 2 - HEIGHT(c) / 2);
 +	}
@@ -63,7 +68,7 @@ index f1d86b2..a8db21a 100644
  	wc.border_width = c->bw;
  	XConfigureWindow(dpy, w, CWBorderWidth, &wc);
  	XSetWindowBorder(dpy, w, scheme[SchemeNorm][ColBorder].pixel);
-@@ -1651,6 +1662,7 @@ spawn(const Arg *arg)
+@@ -1651,6 +1664,7 @@ spawn(const Arg *arg)
  
  	if (arg->v == dmenucmd)
  		dmenumon[0] = '0' + selmon->num;
@@ -71,7 +76,7 @@ index f1d86b2..a8db21a 100644
  	if (fork() == 0) {
  		if (dpy)
  			close(ConnectionNumber(dpy));
-@@ -1735,6 +1747,28 @@ togglefloating(const Arg *arg)
+@@ -1735,6 +1749,28 @@ togglefloating(const Arg *arg)
  	arrange(selmon);
  }
  
