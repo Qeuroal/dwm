@@ -74,12 +74,13 @@ diff --git a/config.def.h b/config.def.h
  
  static const Rule rules[] = {
  	/* xprop(1):
-@@ -41,7 +64,24 @@
+@@ -41,7 +64,26 @@
  	 */
  	/* class      instance    title       tags mask     isfloating   monitor */
  	{ "Gimp",     NULL,       NULL,       0,            1,           -1 },
 +	{ "wechat",   NULL,       NULL,       0,            1,           -1 },
 +	{ "Clash-verge", NULL,    NULL,       0,            1,           -1 },
++	{ "mailmaster", NULL,    NULL,       0,            1,           -1 },
  	{ "Firefox",  NULL,       NULL,       1 << 8,       0,           -1 },
 +};
 +
@@ -96,10 +97,11 @@ diff --git a/config.def.h b/config.def.h
 +	 */
 +	/* class          instance  title  width %  height % */
 +	{ "Clash-verge",   NULL,     NULL,  70,      80 },
++	{ "mailmaster",    NULL,     NULL,  70,      80 },
  };
  
  /* layout(s) */
-@@ -49,7 +89,7 @@
+@@ -49,7 +91,7 @@
  static const int nmaster     = 1;    /* number of clients in master area */
  static const int resizehints = 1;    /* 1 means respect size hints in tiled resizals */
  static const int lockfullscreen = 1; /* 1 will force focus on the fullscreen window */
@@ -108,7 +110,7 @@ diff --git a/config.def.h b/config.def.h
  
  #define FORCE_VSPLIT 1  /* nrowgrid layout: force two clients to always split vertically */
  #include "vanitygaps.c"
-@@ -74,7 +114,7 @@
+@@ -74,7 +116,7 @@
  };
  
  /* key definitions */
@@ -117,7 +119,7 @@ diff --git a/config.def.h b/config.def.h
  #define TAGKEYS(KEY,TAG) \
  	{ MODKEY,                       KEY,      view,           {.ui = 1 << TAG} }, \
  	{ MODKEY|ControlMask,           KEY,      toggleview,     {.ui = 1 << TAG} }, \
-@@ -86,6 +126,6 @@
+@@ -86,6 +128,6 @@
  
  /* commands */
  static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() */
@@ -126,7 +128,7 @@ diff --git a/config.def.h b/config.def.h
 +static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", col_gray1, "-nf", col_white1, "-sb", col_red2, "-sf", col_white1, NULL };
 +static const char *termcmd[]  = { "ghostty", NULL };
  static const char scratchpadname[] = "scratchpad";
-@@ -95,7 +135,12 @@
+@@ -95,7 +137,12 @@
 -static const char *scratchpadcmd[] = { "st", "-t", scratchpadname, "-g", "120x34", NULL };
 +static const char *scratchpadcmd[] = { "ghostty", "--title=scratchpad", NULL };
  
@@ -140,7 +142,7 @@ diff --git a/config.def.h b/config.def.h
  	{ MODKEY,                       XK_p,      spawn,          {.v = dmenucmd } },
  	{ MODKEY|ShiftMask,             XK_Return, spawn,          {.v = termcmd } },
  	{ MODKEY,                       XK_grave,  togglescratch,  {.v = scratchpadcmd } },
-@@ -112,22 +157,22 @@
+@@ -112,22 +159,22 @@
  	{ MODKEY|ShiftMask,             XK_l,      setcfact,       {.f = -0.25} },
  	{ MODKEY|ShiftMask,             XK_o,      setcfact,       {.f =  0.00} },
  	{ MODKEY,                       XK_Return, zoom,           {0} },
@@ -179,7 +181,7 @@ diff --git a/config.def.h b/config.def.h
  	{ MODKEY,                       XK_Tab,    view,           {0} },
  	{ MODKEY|ShiftMask,             XK_c,      killclient,     {0} },
  	{ MODKEY,                       XK_t,      setlayout,      {.v = &layouts[0]} },
-@@ -151,7 +196,7 @@
+@@ -151,7 +198,7 @@
  	TAGKEYS(                        XK_7,                      6)
  	TAGKEYS(                        XK_8,                      7)
  	TAGKEYS(                        XK_9,                      8)
@@ -240,7 +242,7 @@ diff --git a/dwm.c b/dwm.c
  			drw_text(drw, x, 0, w, bh, lrpad / 2, m->sel->name, 0);
  			if (m->sel->isfloating)
  				drw_rect(drw, x + boxs, boxs, boxw, boxw, m->sel->isfixed, 0);
-@@ -1291,8 +1302,14 @@
+@@ -1291,8 +1302,15 @@
  	grabbuttons(c, 0);
  	if (!c->isfloating)
  		c->isfloating = c->oldstate = trans != None || c->isfixed;
@@ -248,6 +250,7 @@ diff --git a/dwm.c b/dwm.c
 +	if (c->isfloating) {
 +		/* Center new floating windows in the monitor's usable area. */
 +		if (!c->isfullscreen) {
++			applysizehints(c, &c->x, &c->y, &c->w, &c->h, 0);
 +			c->x = c->mon->wx + MAX(0, (c->mon->ww - WIDTH(c)) / 2);
 +			c->y = c->mon->wy + MAX(0, (c->mon->wh - HEIGHT(c)) / 2);
 +		}
@@ -256,7 +259,7 @@ diff --git a/dwm.c b/dwm.c
  	attach(c);
  	attachstack(c);
  	XChangeProperty(dpy, root, netatom[NetClientList], XA_WINDOW, 32, PropModeAppend,
-@@ -1908,16 +1925,13 @@
+@@ -1908,16 +1926,13 @@
  void
  fullscreen(const Arg *arg)
  {
@@ -277,7 +280,7 @@ diff --git a/dwm.c b/dwm.c
  }
  
  void
-@@ -2024,9 +2038,8 @@
+@@ -2024,9 +2039,8 @@
  	cursor[CurMove] = drw_cur_create(drw, XC_fleur);
  	/* init appearance */
  	scheme = ecalloc(LENGTH(colors), sizeof(Clr *));
@@ -288,7 +291,7 @@ diff --git a/dwm.c b/dwm.c
  	/* init system tray */
  	updatesystray();
  	/* init bars */
-@@ -2154,8 +2167,13 @@
+@@ -2154,8 +2168,13 @@
  		selmon->sel->tags = arg->ui & TAGMASK;
  		focus(NULL);
  		arrange(selmon);
@@ -303,7 +306,7 @@ diff --git a/dwm.c b/dwm.c
  	}
  }
  
-@@ -2707,8 +2725,11 @@
+@@ -2707,8 +2726,11 @@
  		if (c == selmon->sel && wmh->flags & XUrgencyHint) {
  			wmh->flags &= ~XUrgencyHint;
  			XSetWMHints(dpy, c->win, wmh);
