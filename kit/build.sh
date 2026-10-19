@@ -7,11 +7,9 @@ git restore . && git clean -fd
 if [ ! -d ~/.dwm ]; then
     mkdir -p ~/.dwm
 fi
-cp ./scripts/autostart.sh ~/.dwm/autostart.sh
-ln -sf `realpath ./scripts` ~/.dwm/
-if [ ! -e ~/.dwm/status_config ]; then
-    cp -f `realpath ./scripts/status_config` ~/.dwm/
-fi
+cp ./kit/autostart.sh ~/.dwm/autostart.sh
+ln -sf `realpath ./kit` ~/.dwm/
+ln -sfn "$(realpath ./kit/profiles/status_config)" ~/.dwm/status_config
 #<}}}
 
 #{{{> ~/.xprofile

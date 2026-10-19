@@ -13,4 +13,4 @@ fi
 notify-send -a dwm-volume -u low -t 1500 \
     -h "int:value:$value" -h string:x-dunst-stack-tag:dwm-volume \
     -h boolean:transient:true "$label"
-bash ~/.dwm/scripts/dwm-status-refresh.sh
+bash ~/.dwm/kit/status/dwm-status-refresh.sh

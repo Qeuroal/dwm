@@ -132,11 +132,11 @@ diff --git a/config.def.h b/config.def.h
  
  static const Key keys[] = {
  	/* modifier                     key        function        argument */
-+	{ 0, XF86XK_AudioRaiseVolume, spawn, SHCMD("bash ~/.dwm/scripts/vol-up.sh") },
-+	{ 0, XF86XK_AudioLowerVolume, spawn, SHCMD("bash ~/.dwm/scripts/vol-down.sh") },
-+	{ 0, XF86XK_AudioMute, spawn, SHCMD("bash ~/.dwm/scripts/vol-toggle.sh") },
-+	{ 0, XF86XK_MonBrightnessUp, spawn, SHCMD("bash ~/.dwm/scripts/brightness-up.sh") },
-+	{ 0, XF86XK_MonBrightnessDown, spawn, SHCMD("bash ~/.dwm/scripts/brightness-down.sh") },
++	{ 0, XF86XK_AudioRaiseVolume, spawn, SHCMD("bash ~/.dwm/kit/audio/vol-up.sh") },
++	{ 0, XF86XK_AudioLowerVolume, spawn, SHCMD("bash ~/.dwm/kit/audio/vol-down.sh") },
++	{ 0, XF86XK_AudioMute, spawn, SHCMD("bash ~/.dwm/kit/audio/vol-toggle.sh") },
++	{ 0, XF86XK_MonBrightnessUp, spawn, SHCMD("bash ~/.dwm/kit/brightness/brightness-up.sh") },
++	{ 0, XF86XK_MonBrightnessDown, spawn, SHCMD("bash ~/.dwm/kit/brightness/brightness-down.sh") },
  	{ MODKEY,                       XK_p,      spawn,          {.v = dmenucmd } },
  	{ MODKEY|ShiftMask,             XK_Return, spawn,          {.v = termcmd } },
  	{ MODKEY,                       XK_grave,  togglescratch,  {.v = scratchpadcmd } },

@@ -48,7 +48,7 @@ uninstall:
 		${DESTDIR}${MANPREFIX}/man1/dwm.1
 
 rebuild:
-	bash ./scripts/build.sh
+	bash ./kit/build.sh
 
 GITMERGE_INFO ?=
 gm gitmerge:
