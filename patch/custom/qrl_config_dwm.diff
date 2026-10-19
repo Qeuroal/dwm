@@ -1,8 +1,9 @@
 diff --git a/config.def.h b/config.def.h
 --- a/config.def.h
 +++ b/config.def.h
-@@ -1,38 +1,60 @@
+@@ -1,38 +1,61 @@
  /* See LICENSE file for copyright and license details. */
++#include <X11/XF86keysym.h>
  
  /* appearance */
 -static const unsigned int borderpx  = 1;        /* border pixel of windows */
@@ -73,7 +74,32 @@ diff --git a/config.def.h b/config.def.h
  
  static const Rule rules[] = {
  	/* xprop(1):
-@@ -44,7 +66,7 @@
+@@ -41,7 +64,24 @@
+ 	 */
+ 	/* class      instance    title       tags mask     isfloating   monitor */
+ 	{ "Gimp",     NULL,       NULL,       0,            1,           -1 },
++	{ "wechat",   NULL,       NULL,       0,            1,           -1 },
++	{ "Clash-verge", NULL,    NULL,       0,            1,           -1 },
+ 	{ "Firefox",  NULL,       NULL,       1 << 8,       0,           -1 },
++};
++
++/* Floating window size: first matching entry wins.
++ * Percentages include borders and use the monitor's usable area.
++ * 0 keeps the application's size; NULL matches any class/instance/title.
++ */
++static const struct {
++	const char *class, *instance, *title;
++	int width_percent, height_percent;
++} floatsizerules[] = {
++	/* Run: `xprop WM_CLASS _NET_WM_NAME`, then click the target window.
++	 * WM_CLASS = "instance", "class"; _NET_WM_NAME = title.
++	 */
++	/* class          instance  title  width %  height % */
++	{ "Clash-verge",   NULL,     NULL,  70,      80 },
+ };
+ 
+ /* layout(s) */
+@@ -49,7 +89,7 @@
  static const int nmaster     = 1;    /* number of clients in master area */
  static const int resizehints = 1;    /* 1 means respect size hints in tiled resizals */
  static const int lockfullscreen = 1; /* 1 will force focus on the fullscreen window */
@@ -82,7 +108,7 @@ diff --git a/config.def.h b/config.def.h
  
  #define FORCE_VSPLIT 1  /* nrowgrid layout: force two clients to always split vertically */
  #include "vanitygaps.c"
-@@ -69,7 +91,7 @@
+@@ -74,7 +114,7 @@
  };
  
  /* key definitions */
@@ -91,7 +117,7 @@ diff --git a/config.def.h b/config.def.h
  #define TAGKEYS(KEY,TAG) \
  	{ MODKEY,                       KEY,      view,           {.ui = 1 << TAG} }, \
  	{ MODKEY|ControlMask,           KEY,      toggleview,     {.ui = 1 << TAG} }, \
-@@ -81,10 +103,10 @@
+@@ -86,6 +126,6 @@
  
  /* commands */
  static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() */
@@ -100,12 +126,21 @@ diff --git a/config.def.h b/config.def.h
 +static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", col_gray1, "-nf", col_white1, "-sb", col_red2, "-sf", col_white1, NULL };
 +static const char *termcmd[]  = { "ghostty", NULL };
  static const char scratchpadname[] = "scratchpad";
+@@ -95,7 +135,12 @@
 -static const char *scratchpadcmd[] = { "st", "-t", scratchpadname, "-g", "120x34", NULL };
-+static const char *scratchpadcmd[] = { "ghostty", "--title=scratchpad", "--window-width=120", "--window-height=34", NULL };
++static const char *scratchpadcmd[] = { "ghostty", "--title=scratchpad", NULL };
  
  static const Key keys[] = {
  	/* modifier                     key        function        argument */
-@@ -104,22 +126,22 @@
++	{ 0, XF86XK_AudioRaiseVolume, spawn, SHCMD("bash ~/.dwm/scripts/vol-up.sh") },
++	{ 0, XF86XK_AudioLowerVolume, spawn, SHCMD("bash ~/.dwm/scripts/vol-down.sh") },
++	{ 0, XF86XK_AudioMute, spawn, SHCMD("bash ~/.dwm/scripts/vol-toggle.sh") },
++	{ 0, XF86XK_MonBrightnessUp, spawn, SHCMD("bash ~/.dwm/scripts/brightness-up.sh") },
++	{ 0, XF86XK_MonBrightnessDown, spawn, SHCMD("bash ~/.dwm/scripts/brightness-down.sh") },
+ 	{ MODKEY,                       XK_p,      spawn,          {.v = dmenucmd } },
+ 	{ MODKEY|ShiftMask,             XK_Return, spawn,          {.v = termcmd } },
+ 	{ MODKEY,                       XK_grave,  togglescratch,  {.v = scratchpadcmd } },
+@@ -112,22 +157,22 @@
  	{ MODKEY|ShiftMask,             XK_l,      setcfact,       {.f = -0.25} },
  	{ MODKEY|ShiftMask,             XK_o,      setcfact,       {.f =  0.00} },
  	{ MODKEY,                       XK_Return, zoom,           {0} },
@@ -144,7 +179,7 @@ diff --git a/config.def.h b/config.def.h
  	{ MODKEY,                       XK_Tab,    view,           {0} },
  	{ MODKEY|ShiftMask,             XK_c,      killclient,     {0} },
  	{ MODKEY,                       XK_t,      setlayout,      {.v = &layouts[0]} },
-@@ -143,7 +165,7 @@
+@@ -151,7 +196,7 @@
  	TAGKEYS(                        XK_7,                      6)
  	TAGKEYS(                        XK_8,                      7)
  	TAGKEYS(                        XK_9,                      8)
@@ -169,25 +204,59 @@ diff --git a/drw.c b/drw.c
 diff --git a/dwm.c b/dwm.c
 --- a/dwm.c
 +++ b/dwm.c
-@@ -61,7 +61,7 @@
+@@ -74,7 +74,7 @@
  
  /* enums */
  enum { CurNormal, CurResize, CurMove, CurLast }; /* cursor */
 -enum { SchemeNorm, SchemeSel }; /* color schemes */
 +enum { SchemeNorm, SchemeSel, SchemeUrg, SchemeTitle }; /* color schemes */
  enum { NetSupported, NetWMName, NetWMState, NetWMCheck,
+        NetSystemTray, NetSystemTrayOP, NetSystemTrayOrientation, NetSystemTrayOrientationHorz,
         NetWMFullscreen, NetActiveWindow, NetWMWindowType,
-        NetWMWindowTypeDialog, NetClientList, NetLast }; /* EWMH atoms */
-@@ -796,7 +796,7 @@
+@@ -374,6 +374,17 @@
+ 				c->mon = m;
+ 		}
+ 	}
++	for (i = 0; c->isfloating && i < LENGTH(floatsizerules); i++) {
++		if ((!floatsizerules[i].class || strstr(class, floatsizerules[i].class))
++		&& (!floatsizerules[i].instance || strstr(instance, floatsizerules[i].instance))
++		&& (!floatsizerules[i].title || strstr(c->name, floatsizerules[i].title))) {
++			if (floatsizerules[i].width_percent > 0 && floatsizerules[i].width_percent <= 100)
++				c->w = MAX(1, c->mon->ww * floatsizerules[i].width_percent / 100 - 2 * borderpx);
++			if (floatsizerules[i].height_percent > 0 && floatsizerules[i].height_percent <= 100)
++				c->h = MAX(1, c->mon->wh * floatsizerules[i].height_percent / 100 - 2 * borderpx);
++			break;
++		}
++	}
+ 	if (ch.res_class)
+ 		XFree(ch.res_class);
+ 	if (ch.res_name)
+@@ -895,7 +906,7 @@
  
- 	if ((w = m->ww - tw - x) > bh) {
+ 	if ((w = m->ww - tw - stw - x) > bh) {
  		if (m->sel) {
 -			drw_setscheme(drw, scheme[m == selmon ? SchemeSel : SchemeNorm]);
 +			drw_setscheme(drw, scheme[m == selmon ? SchemeTitle : SchemeNorm]);
  			drw_text(drw, x, 0, w, bh, lrpad / 2, m->sel->name, 0);
  			if (m->sel->isfloating)
  				drw_rect(drw, x + boxs, boxs, boxw, boxw, m->sel->isfixed, 0);
-@@ -1720,16 +1720,13 @@
+@@ -1291,8 +1302,14 @@
+ 	grabbuttons(c, 0);
+ 	if (!c->isfloating)
+ 		c->isfloating = c->oldstate = trans != None || c->isfixed;
+-	if (c->isfloating)
++	if (c->isfloating) {
++		/* Center new floating windows in the monitor's usable area. */
++		if (!c->isfullscreen) {
++			c->x = c->mon->wx + MAX(0, (c->mon->ww - WIDTH(c)) / 2);
++			c->y = c->mon->wy + MAX(0, (c->mon->wh - HEIGHT(c)) / 2);
++		}
+ 		XRaiseWindow(dpy, c->win);
++	}
+ 	attach(c);
+ 	attachstack(c);
+ 	XChangeProperty(dpy, root, netatom[NetClientList], XA_WINDOW, 32, PropModeAppend,
+@@ -1908,16 +1925,13 @@
  void
  fullscreen(const Arg *arg)
  {
@@ -208,7 +277,7 @@ diff --git a/dwm.c b/dwm.c
  }
  
  void
-@@ -1829,11 +1826,10 @@
+@@ -2024,9 +2038,8 @@
  	cursor[CurMove] = drw_cur_create(drw, XC_fleur);
  	/* init appearance */
  	scheme = ecalloc(LENGTH(colors), sizeof(Clr *));
@@ -219,9 +288,7 @@ diff --git a/dwm.c b/dwm.c
  	/* init system tray */
  	updatesystray();
  	/* init bars */
- 	updatebars();
- 	updatestatus();
-@@ -1919,8 +1915,13 @@
+@@ -2154,8 +2167,13 @@
  		selmon->sel->tags = arg->ui & TAGMASK;
  		focus(NULL);
  		arrange(selmon);
@@ -236,7 +303,7 @@ diff --git a/dwm.c b/dwm.c
  	}
  }
  
-@@ -2313,8 +2314,11 @@
+@@ -2707,8 +2725,11 @@
  		if (c == selmon->sel && wmh->flags & XUrgencyHint) {
  			wmh->flags &= ~XUrgencyHint;
  			XSetWMHints(dpy, c->win, wmh);
