@@ -3,7 +3,7 @@
 /bin/bash ~/.dwm/scripts/dwm-status.sh &
 /bin/bash ~/.dwm/scripts/wp-autochange.sh &
 #picom -o 0.95 -i 0.88 --detect-rounded-corners --vsync --blur-background-fixed -f -D 5 -c -b
-picom -b
+picom --config ~/.dwm/scripts/profiles/picom.conf -b
 /bin/bash ~/.dwm/scripts/tap-to-click.sh &
 /bin/bash ~/.dwm/scripts/inverse-scroll.sh &
 # /bin/bash ~/.dwm/scripts/setxmodmap-colemak.sh &
