@@ -2,5 +2,7 @@ export XMODIFIERS=@im=fcitx
 export QT_IM_MODULE=fcitx
 export GTK_IM_MODULE=fcitx
 
+xrdb -merge ~/.dwm/kit/profiles/Xresources
+
 # screen
 [ -f ~/.screenlayout/dual.sh ] && . ~/.screenlayout/dual.sh
