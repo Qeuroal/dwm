@@ -6,6 +6,7 @@ include config.mk
 .PHONY: all clean dist \
 	install uninstall \
 	rebuild \
+	fonts deps \
 	gm gitmerge
 
 SRC = drw.c dwm.c util.c
@@ -49,6 +50,18 @@ uninstall:
 
 rebuild:
 	bash ./kit/build.sh
+
+fonts:
+	@test -f /etc/arch-release || { printf 'make fonts/deps supports Arch Linux only\n' >&2; exit 1; }
+	sudo pacman -S --needed ttf-jetbrains-mono-nerd
+
+deps: fonts
+	sudo pacman -S --needed \
+		gcc make patch git libx11 libxft libxinerama libxrender \
+		xorg-server xorg-xinit dmenu ghostty \
+		picom feh xorg-xsetroot xorg-xinput xorg-xrandr \
+		acpi bc iproute2 alsa-utils brightnessctl libnotify dunst \
+		network-manager-applet xfce4-power-manager
 
 GITMERGE_INFO ?=
 gm gitmerge:
