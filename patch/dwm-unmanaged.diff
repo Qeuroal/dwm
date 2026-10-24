@@ -1,0 +1,98 @@
+diff --git a/config.def.h b/config.def.h
+--- a/config.def.h
++++ b/config.def.h
+@@ -171,3 +171,13 @@
+ 	{ ClkTagBar,            MODKEY,         Button3,        toggletag,      {0} },
+ };
+ 
++/* Unmanaged windows: exact matches; NULL ignores a field.
++ * state is an optional _NET_WM_STATE atom name. All-NULL entries are disabled.
++ */
++static const struct {
++	const char *class, *instance, *title, *state;
++} unmanagedrules[] = {
++	/* class  instance  title  state */
++	{ NULL,   NULL,     NULL,  NULL },
++};
++
+diff --git a/dwm.c b/dwm.c
+--- a/dwm.c
++++ b/dwm.c
+@@ -1236,12 +1236,77 @@
+ 	}
+ }
+ 
++static int
++haswindowstate(Window w, const char *name)
++{
++	Atom actual, state = XInternAtom(dpy, name, False);
++	unsigned char *data = NULL;
++	unsigned long count, remaining, i;
++	int format, found = 0;
++
++	if (XGetWindowProperty(dpy, w, netatom[NetWMState], 0L, 32L, False,
++	                      XA_ATOM, &actual, &format, &count, &remaining, &data) == Success
++	&& actual == XA_ATOM && format == 32 && data) {
++		for (i = 0; i < count; i++)
++			if (((Atom *)data)[i] == state) {
++				found = 1;
++				break;
++			}
++	}
++	if (data)
++		XFree(data);
++	return found;
++}
++
++static int
++isunmanaged(Window w)
++{
++	XClassHint ch = { NULL, NULL };
++	char name[256];
++	unsigned int i;
++	int match = 0;
++
++	XGetClassHint(dpy, w, &ch);
++	if (!gettextprop(w, netatom[NetWMName], name, sizeof name))
++		gettextprop(w, XA_WM_NAME, name, sizeof name);
++	for (i = 0; i < LENGTH(unmanagedrules); i++) {
++		if (!unmanagedrules[i].class && !unmanagedrules[i].instance
++		&& !unmanagedrules[i].title && !unmanagedrules[i].state)
++			continue;
++		if (unmanagedrules[i].class
++		&& (!ch.res_class || strcmp(ch.res_class, unmanagedrules[i].class) != 0))
++			continue;
++		if (unmanagedrules[i].instance
++		&& (!ch.res_name || strcmp(ch.res_name, unmanagedrules[i].instance) != 0))
++			continue;
++		if (unmanagedrules[i].title && strcmp(name, unmanagedrules[i].title) != 0)
++			continue;
++		if (unmanagedrules[i].state && !haswindowstate(w, unmanagedrules[i].state))
++			continue;
++		match = 1;
++		break;
++	}
++	if (ch.res_class)
++		XFree(ch.res_class);
++	if (ch.res_name)
++		XFree(ch.res_name);
++	return match;
++}
++
+ void
+ manage(Window w, XWindowAttributes *wa)
+ {
+ 	Client *c, *t = NULL;
+ 	Window trans = None;
+ 	XWindowChanges wc;
++
++	if (isunmanaged(w)) {
++		XSetWindowAttributes attributes = { .override_redirect = True };
++
++		XChangeWindowAttributes(dpy, w, CWOverrideRedirect, &attributes);
++		XMapRaised(dpy, w);
++		return;
++	}
+ 
+ 	c = ecalloc(1, sizeof(Client));
+ 	c->win = w;

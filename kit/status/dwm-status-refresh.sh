@@ -77,26 +77,36 @@ get_time_until_charged() {
 }
 
 get_battery_combined_percent() {
-
-	# get charge of all batteries, combine them
-	total_charge=$(expr $(acpi -b | awk '{print $4}' | grep -Eo "[0-9]+" | paste -sd+ | bc));
-
-	# get amount of batteries in the device
-	battery_number=$(acpi -b | wc -l);
-
-	percent=$(expr $total_charge / $battery_number);
-
-	echo $percent;
+	LC_ALL=C acpi -b 2>/dev/null | awk '
+		match($0, /[0-9]+%/) {
+			total += substr($0, RSTART, RLENGTH - 1)
+			count++
+		}
+		END { if (count) printf "%d\n", total / count }
+	'
 }
 
 get_battery_charging_status() {
-
-	if $(acpi -b | grep --quiet Discharging)
-	then
-		echo "🔋";
-	else # acpi can give Unknown or Charging if charging, https://unix.stackexchange.com/questions/203741/lenovo-t440s-battery-status-unknown-but-charging
-		echo "🔌";
-	fi
+    local percent=$1 icon supply
+    if ((percent >= 90)); then
+        icon=$'\U000f0079'
+    elif ((percent >= 65)); then
+        icon=$'\U000f0080'
+    elif ((percent >= 40)); then
+        icon=$'\U000f007e'
+    elif ((percent >= 15)); then
+        icon=$'\U000f007b'
+    else
+        icon=$'\U000f008e'
+    fi
+    for supply in /sys/class/power_supply/*; do
+        if [[ -r "$supply/online" && $(<"$supply/online") == 1 ]]; then
+            icon=$'\U000f0084'
+            break
+        fi
+    done
+    printf '%s' "$icon"
+    return 0
 }
 
 
@@ -122,16 +132,10 @@ print_bat(){
     # fi
 
     ans=""
-    ans="$ans$(get_battery_charging_status)"
     combinePercent=$(get_battery_combined_percent)
     flag=0
     if [ "$combinePercent" != "" ]; then
-        ans="$ans $combinePercent"
-    fi
-
-    restTime=$(get_time_until_charged)
-    if [ "$restTime" != "" ]; then
-        ans="$ans, %$restTime"
+        ans="$(get_battery_charging_status "$combinePercent") $combinePercent%"
     fi
 
     echo "$ans"
@@ -203,7 +207,7 @@ fi
 
 batInfo="$(print_bat)"
 if [ -f ~/.dwm/status_config -a `cat ~/.dwm/status_config | grep -c "set show_bat true"` -gt 0 -a  "${batInfo}" != "" ]; then
-    batInfo=" [${batInfo}]"
+    batInfo=" ${batInfo}"
 else
     batInfo=""
 fi

@@ -46,3 +46,40 @@ Configuration
 -------------
 The configuration of dwm is done by creating a custom config.h
 and (re)compiling the source code.
+
+
+本地 Arch Linux 配置依赖
+----------------------
+在本项目目录执行：
+
+    make deps
+
+先执行 fonts 安装字体，再安装编译及当前配置脚本使用的软件包。
+只安装字体可以执行 make fonts。两个安装目标仅支持 Arch Linux；
+普通 make 仍然编译 dwm，不安装依赖，也不改变现有构建流程。
+
+依赖对应关系：
+
+- gcc、make、patch、git：编译与补丁构建脚本。
+- libx11、libxft、libxinerama、libxrender：X11、字体、多屏及透明补丁。
+- xorg-server、xorg-xinit：X11 会话；Xresources 使用的 xrdb 随 xorg-xinit 安装。
+- dmenu、ghostty：启动菜单、默认终端与 scratchpad。
+- picom、feh：合成器和自动壁纸。
+- xorg-xsetroot、acpi、bc、iproute2：状态栏、电池及网络信息。
+- xorg-xinput、xorg-xrandr：触控板与屏幕管理脚本。
+- alsa-utils、brightnessctl、libnotify、dunst：音量、亮度与通知弹窗。
+- network-manager-applet、xfce4-power-manager：当前自启动的网络及电源管理程序。
+
+字体配置位于 patch/custom/qrl_config_dwm.diff：
+
+- JetBrainsMonoNL Nerd Font：由 ttf-jetbrains-mono-nerd 提供，包含状态栏图标。
+- Noto Sans SC：本机通过 ~/.local/share/fonts/win_font/NotoSansSC-VF.ttf
+  手动安装，不属于 pacman 软件包，需要在其他机器上另行安装同名字体。
+  上游字体：https://github.com/notofonts/noto-cjk/tree/main/Sans/Variable/TTF/Subset
+
+make fonts 不修改当前配置中的字体名称，中文字体保持手动安装。
+Ghostty 自己的字体依赖由其配置目录中的 make fonts 维护；
+Fcitx5/Rime 依赖由 flypy 目录中的 make deps 维护。
+
+自启动中的 mailsync 是个人提供的外部命令，不由 make deps 安装。
+以上目标只安装软件包，不启用服务、不修改自启动、不应用补丁或安装 dwm。
