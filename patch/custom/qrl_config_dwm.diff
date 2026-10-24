@@ -190,6 +190,9 @@ diff --git a/config.def.h b/config.def.h
  };
  
  /* button definitions */
+@@ -181 +228 @@
+-	{ NULL,   NULL,     NULL,  NULL },
++	{ "wps", "wps", "wps", "_NET_WM_STATE_SKIP_TASKBAR" },
 diff --git a/drw.c b/drw.c
 --- a/drw.c
 +++ b/drw.c
