@@ -110,6 +110,12 @@ diff --git a/config.def.h b/config.def.h
  
  #define FORCE_VSPLIT 1  /* nrowgrid layout: force two clients to always split vertically */
  #include "vanitygaps.c"
+@@ -59 +101 @@
+-	{ "[]=",      tile },    /* first entry is default */
++	{ "[@]",      spiral },  /* first entry is default */
+@@ -61 +103 @@
+-	{ "[@]",      spiral },
++	{ "[]=",      tile },
 @@ -74,7 +116,7 @@
  };
  
@@ -142,7 +148,7 @@ diff --git a/config.def.h b/config.def.h
  	{ MODKEY,                       XK_p,      spawn,          {.v = dmenucmd } },
  	{ MODKEY|ShiftMask,             XK_Return, spawn,          {.v = termcmd } },
  	{ MODKEY,                       XK_grave,  togglescratch,  {.v = scratchpadcmd } },
-@@ -112,22 +159,22 @@
+@@ -112,21 +159,21 @@
  	{ MODKEY|ShiftMask,             XK_l,      setcfact,       {.f = -0.25} },
  	{ MODKEY|ShiftMask,             XK_o,      setcfact,       {.f =  0.00} },
  	{ MODKEY,                       XK_Return, zoom,           {0} },
@@ -180,7 +186,12 @@ diff --git a/config.def.h b/config.def.h
 +	// { MODKEY|Mod4Mask|ShiftMask,    XK_0,      defaultgaps,    {0} },
  	{ MODKEY,                       XK_Tab,    view,           {0} },
  	{ MODKEY|ShiftMask,             XK_c,      killclient,     {0} },
- 	{ MODKEY,                       XK_t,      setlayout,      {.v = &layouts[0]} },
+@@ -133 +180 @@
+-	{ MODKEY,                       XK_t,      setlayout,      {.v = &layouts[0]} },
++	{ MODKEY,                       XK_t,      setlayout,      {.v = &layouts[2]} },
+@@ -135 +182 @@
+-	{ MODKEY,                       XK_m,      setlayout,      {.v = &layouts[2]} },
++	{ MODKEY,                       XK_m,      setlayout,      {.v = &layouts[0]} },
 @@ -151,7 +198,7 @@
  	TAGKEYS(                        XK_7,                      6)
  	TAGKEYS(                        XK_8,                      7)
