@@ -2,45 +2,32 @@
 
 git restore . && git clean -fd
 
-#{{{> .dwm
-#
-if [ ! -d ~/.dwm ]; then
-    mkdir -p ~/.dwm
-fi
-cp ./kit/autostart.sh ~/.dwm/autostart.sh
-ln -sf `realpath ./kit` ~/.dwm/
-ln -sfn "$(realpath ./kit/profiles/status_config)" ~/.dwm/status_config
-#<}}}
+project_dir=$(pwd)
+config_dir=${XDG_CONFIG_HOME:-$HOME/.config}
 
-#{{{> ~/.xprofile
-if [[ -e ./dotfiles/.xprofile ]]; then
-    [[ -e ~/.xprofile ]] && rm -f ~/.xprofile
-    ln -sf $(realpath ./dotfiles/.xprofile) ~/.xprofile
-fi
-#<}}}
+# 桌面脚本和配置
+mkdir -p "$HOME/.dwm" "$config_dir"
+cp "$project_dir/kit/autostart.sh" "$HOME/.dwm/autostart.sh"
+ln -sfn "$project_dir/kit" "$HOME/.dwm/kit"
+ln -sfn "$project_dir/kit/profiles/status_config" "$HOME/.dwm/status_config"
 
-#{{{> .xinitrc
-#
-if [ ! -e ~/.xinitrc ] || [ `cat ~/.xinitrc | grep -c "exec dwm"` -eq 0 ]; then
-    echo "exec dwm" >> ~/.xinitrc
-fi
-#<}}}
-
-#{{{> patch
-#
-if [ -d "patch" ]; then
-    ls patch | grep "diff" | xargs -I {} cat ./patch/{} | patch
-fi
-# after patch
-if [ -d "patch/after" ]; then
-    ls patch/after | grep "diff" | xargs -I {} cat ./patch/after/{} | patch
-fi
-# custom path
-if [ -d "patch/custom" ]; then
-    ls patch/custom | grep "diff" | xargs -I {} cat ./patch/custom/{} | patch
+if [[ -f "$project_dir/dotfiles/.xprofile" ]]; then
+    ln -sfn "$project_dir/dotfiles/.xprofile" "$HOME/.xprofile"
 fi
 
-#<}}}
+for profile in dunst gtk-3.0 gtk-4.0; do
+    ln -sfnT "$project_dir/kit/profiles/$profile" "$config_dir/$profile"
+done
 
+# X 会话入口
+if ! grep -q 'exec dwm' "$HOME/.xinitrc" 2>/dev/null; then
+    echo "exec dwm" >> "$HOME/.xinitrc"
+fi
 
-
+# 依次应用基础、后置和自定义补丁
+for patch_dir in patch patch/after patch/custom; do
+    for patch_file in "$patch_dir"/*.diff; do
+        [[ -f "$patch_file" ]] || continue
+        patch < "$patch_file"
+    done
+done
