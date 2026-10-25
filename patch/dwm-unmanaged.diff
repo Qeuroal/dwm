@@ -1,36 +1,39 @@
 diff --git a/config.def.h b/config.def.h
 --- a/config.def.h
 +++ b/config.def.h
-@@ -171,3 +171,13 @@
+@@ -171,3 +171,16 @@
  	{ ClkTagBar,            MODKEY,         Button3,        toggletag,      {0} },
  };
  
-+/* Unmanaged windows: exact matches; NULL ignores a field.
-+ * state is an optional _NET_WM_STATE atom name. All-NULL entries are disabled.
++/* Unmanaged windows: exact matches; NULL ignores a string field.
++ * state/type are optional _NET_WM_STATE/_NET_WM_WINDOW_TYPE atom names.
++ * transient = 1 requires an existing managed parent; 0 accepts either kind.
++ * An all-NULL/zero entry is disabled.
 + */
 +static const struct {
-+	const char *class, *instance, *title, *state;
++	const char *class, *instance, *title, *state, *type;
++	int transient;
 +} unmanagedrules[] = {
-+	/* class  instance  title  state */
-+	{ NULL,   NULL,     NULL,  NULL },
++	/* class  instance  title  state  type  transient */
++	{ NULL,   NULL,     NULL,  NULL,  NULL, 0 },
 +};
 +
 diff --git a/dwm.c b/dwm.c
 --- a/dwm.c
 +++ b/dwm.c
-@@ -1236,12 +1236,77 @@
+@@ -1236,12 +1236,86 @@
  	}
  }
  
 +static int
-+haswindowstate(Window w, const char *name)
++haswindowatom(Window w, Atom property, const char *name)
 +{
 +	Atom actual, state = XInternAtom(dpy, name, False);
 +	unsigned char *data = NULL;
 +	unsigned long count, remaining, i;
 +	int format, found = 0;
 +
-+	if (XGetWindowProperty(dpy, w, netatom[NetWMState], 0L, 32L, False,
++	if (XGetWindowProperty(dpy, w, property, 0L, 32L, False,
 +	                      XA_ATOM, &actual, &format, &count, &remaining, &data) == Success
 +	&& actual == XA_ATOM && format == 32 && data) {
 +		for (i = 0; i < count; i++)
@@ -48,6 +51,7 @@ diff --git a/dwm.c b/dwm.c
 +isunmanaged(Window w)
 +{
 +	XClassHint ch = { NULL, NULL };
++	Window parent;
 +	char name[256];
 +	unsigned int i;
 +	int match = 0;
@@ -57,7 +61,8 @@ diff --git a/dwm.c b/dwm.c
 +		gettextprop(w, XA_WM_NAME, name, sizeof name);
 +	for (i = 0; i < LENGTH(unmanagedrules); i++) {
 +		if (!unmanagedrules[i].class && !unmanagedrules[i].instance
-+		&& !unmanagedrules[i].title && !unmanagedrules[i].state)
++		&& !unmanagedrules[i].title && !unmanagedrules[i].state
++		&& !unmanagedrules[i].type && !unmanagedrules[i].transient)
 +			continue;
 +		if (unmanagedrules[i].class
 +		&& (!ch.res_class || strcmp(ch.res_class, unmanagedrules[i].class) != 0))
@@ -67,7 +72,14 @@ diff --git a/dwm.c b/dwm.c
 +			continue;
 +		if (unmanagedrules[i].title && strcmp(name, unmanagedrules[i].title) != 0)
 +			continue;
-+		if (unmanagedrules[i].state && !haswindowstate(w, unmanagedrules[i].state))
++		if (unmanagedrules[i].state
++		&& !haswindowatom(w, netatom[NetWMState], unmanagedrules[i].state))
++			continue;
++		if (unmanagedrules[i].type
++		&& !haswindowatom(w, netatom[NetWMWindowType], unmanagedrules[i].type))
++			continue;
++		if (unmanagedrules[i].transient
++		&& (!XGetTransientForHint(dpy, w, &parent) || !wintoclient(parent)))
 +			continue;
 +		match = 1;
 +		break;

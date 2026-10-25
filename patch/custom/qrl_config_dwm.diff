@@ -74,7 +74,7 @@ diff --git a/config.def.h b/config.def.h
  
  static const Rule rules[] = {
  	/* xprop(1):
-@@ -41,7 +64,26 @@
+@@ -41,7 +64,27 @@
  	 */
  	/* class      instance    title       tags mask     isfloating   monitor */
  	{ "Gimp",     NULL,       NULL,       0,            1,           -1 },
@@ -96,12 +96,13 @@ diff --git a/config.def.h b/config.def.h
 +	 * WM_CLASS = "instance", "class"; _NET_WM_NAME = title.
 +	 */
 +	/* class          instance  title  width %  height % */
++	{ "wechat",        "wechat", NULL,  70,      80 },
 +	{ "Clash-verge",   NULL,     NULL,  70,      80 },
 +	{ "mailmaster",    NULL,     NULL,  70,      80 },
  };
  
  /* layout(s) */
-@@ -49,7 +91,7 @@
+@@ -49,7 +92,7 @@
  static const int nmaster     = 1;    /* number of clients in master area */
  static const int resizehints = 1;    /* 1 means respect size hints in tiled resizals */
  static const int lockfullscreen = 1; /* 1 will force focus on the fullscreen window */
@@ -110,13 +111,13 @@ diff --git a/config.def.h b/config.def.h
  
  #define FORCE_VSPLIT 1  /* nrowgrid layout: force two clients to always split vertically */
  #include "vanitygaps.c"
-@@ -59 +101 @@
+@@ -59 +102 @@
 -	{ "[]=",      tile },    /* first entry is default */
 +	{ "[@]",      spiral },  /* first entry is default */
-@@ -61 +103 @@
+@@ -61 +104 @@
 -	{ "[@]",      spiral },
 +	{ "[]=",      tile },
-@@ -74,7 +116,7 @@
+@@ -74,7 +117,7 @@
  };
  
  /* key definitions */
@@ -125,7 +126,7 @@ diff --git a/config.def.h b/config.def.h
  #define TAGKEYS(KEY,TAG) \
  	{ MODKEY,                       KEY,      view,           {.ui = 1 << TAG} }, \
  	{ MODKEY|ControlMask,           KEY,      toggleview,     {.ui = 1 << TAG} }, \
-@@ -86,6 +128,6 @@
+@@ -86,6 +129,6 @@
  
  /* commands */
  static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() */
@@ -134,7 +135,7 @@ diff --git a/config.def.h b/config.def.h
 +static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", col_gray1, "-nf", col_white1, "-sb", col_red2, "-sf", col_white1, NULL };
 +static const char *termcmd[]  = { "ghostty", NULL };
  static const char scratchpadname[] = "scratchpad";
-@@ -95,7 +137,12 @@
+@@ -95,7 +138,12 @@
 -static const char *scratchpadcmd[] = { "st", "-t", scratchpadname, "-g", "120x34", NULL };
 +static const char *scratchpadcmd[] = { "ghostty", "--title=scratchpad", NULL };
  
@@ -148,7 +149,7 @@ diff --git a/config.def.h b/config.def.h
  	{ MODKEY,                       XK_p,      spawn,          {.v = dmenucmd } },
  	{ MODKEY|ShiftMask,             XK_Return, spawn,          {.v = termcmd } },
  	{ MODKEY,                       XK_grave,  togglescratch,  {.v = scratchpadcmd } },
-@@ -112,21 +159,21 @@
+@@ -112,21 +160,21 @@
  	{ MODKEY|ShiftMask,             XK_l,      setcfact,       {.f = -0.25} },
  	{ MODKEY|ShiftMask,             XK_o,      setcfact,       {.f =  0.00} },
  	{ MODKEY,                       XK_Return, zoom,           {0} },
@@ -186,13 +187,13 @@ diff --git a/config.def.h b/config.def.h
 +	// { MODKEY|Mod4Mask|ShiftMask,    XK_0,      defaultgaps,    {0} },
  	{ MODKEY,                       XK_Tab,    view,           {0} },
  	{ MODKEY|ShiftMask,             XK_c,      killclient,     {0} },
-@@ -133 +180 @@
+@@ -133 +181 @@
 -	{ MODKEY,                       XK_t,      setlayout,      {.v = &layouts[0]} },
 +	{ MODKEY,                       XK_t,      setlayout,      {.v = &layouts[2]} },
-@@ -135 +182 @@
+@@ -135 +183 @@
 -	{ MODKEY,                       XK_m,      setlayout,      {.v = &layouts[2]} },
 +	{ MODKEY,                       XK_m,      setlayout,      {.v = &layouts[0]} },
-@@ -151,7 +198,7 @@
+@@ -151,7 +199,7 @@
  	TAGKEYS(                        XK_7,                      6)
  	TAGKEYS(                        XK_8,                      7)
  	TAGKEYS(                        XK_9,                      8)
@@ -201,10 +202,10 @@ diff --git a/config.def.h b/config.def.h
  };
  
  /* button definitions */
-@@ -181 +228,2 @@
--	{ NULL,   NULL,     NULL,  NULL },
-+	{ "wps", "wps", "wps", "_NET_WM_STATE_SKIP_TASKBAR" },
-+	{ "wechat", "wechat", "wechat", NULL },
+@@ -184 +232,2 @@
+-	{ NULL,   NULL,     NULL,  NULL,  NULL, 0 },
++	{ "wps", "wps", NULL, "_NET_WM_STATE_SKIP_TASKBAR", NULL, 0 },
++	{ "wechat", "wechat", NULL, NULL, "_NET_WM_WINDOW_TYPE_UTILITY", 1 },
 diff --git a/drw.c b/drw.c
 --- a/drw.c
 +++ b/drw.c
