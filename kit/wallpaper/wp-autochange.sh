@@ -2,5 +2,5 @@
 
 while true; do
 	bash ~/.dwm/kit/wallpaper/wp-change.sh
-	sleep 30m
+	sleep 10m
 done
