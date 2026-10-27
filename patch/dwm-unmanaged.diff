@@ -1,27 +1,28 @@
 diff --git a/config.def.h b/config.def.h
 --- a/config.def.h
 +++ b/config.def.h
-@@ -171,3 +171,16 @@
+@@ -171,3 +171,17 @@
  	{ ClkTagBar,            MODKEY,         Button3,        toggletag,      {0} },
  };
  
 +/* Unmanaged windows: exact matches; NULL ignores a string field.
 + * state/type are optional _NET_WM_STATE/_NET_WM_WINDOW_TYPE atom names.
 + * transient = 1 requires an existing managed parent; 0 accepts either kind.
++ * noinput = 1 requires WM_HINTS InputHint with input set to False.
 + * An all-NULL/zero entry is disabled.
 + */
 +static const struct {
 +	const char *class, *instance, *title, *state, *type;
-+	int transient;
++	int transient, noinput;
 +} unmanagedrules[] = {
-+	/* class  instance  title  state  type  transient */
-+	{ NULL,   NULL,     NULL,  NULL,  NULL, 0 },
++	/* class  instance  title  state  type  transient  noinput */
++	{ NULL,   NULL,     NULL,  NULL,  NULL, 0,         0 },
 +};
 +
 diff --git a/dwm.c b/dwm.c
 --- a/dwm.c
 +++ b/dwm.c
-@@ -1236,12 +1236,86 @@
+@@ -1236,12 +1236,95 @@
  	}
  }
  
@@ -51,10 +52,11 @@ diff --git a/dwm.c b/dwm.c
 +isunmanaged(Window w)
 +{
 +	XClassHint ch = { NULL, NULL };
++	XWMHints *hints;
 +	Window parent;
 +	char name[256];
 +	unsigned int i;
-+	int match = 0;
++	int match = 0, noinput;
 +
 +	XGetClassHint(dpy, w, &ch);
 +	if (!gettextprop(w, netatom[NetWMName], name, sizeof name))
@@ -62,7 +64,7 @@ diff --git a/dwm.c b/dwm.c
 +	for (i = 0; i < LENGTH(unmanagedrules); i++) {
 +		if (!unmanagedrules[i].class && !unmanagedrules[i].instance
 +		&& !unmanagedrules[i].title && !unmanagedrules[i].state
-+		&& !unmanagedrules[i].type && !unmanagedrules[i].transient)
++		&& !unmanagedrules[i].type && !unmanagedrules[i].transient && !unmanagedrules[i].noinput)
 +			continue;
 +		if (unmanagedrules[i].class
 +		&& (!ch.res_class || strcmp(ch.res_class, unmanagedrules[i].class) != 0))
@@ -78,6 +80,14 @@ diff --git a/dwm.c b/dwm.c
 +		if (unmanagedrules[i].type
 +		&& !haswindowatom(w, netatom[NetWMWindowType], unmanagedrules[i].type))
 +			continue;
++		if (unmanagedrules[i].noinput) {
++			hints = XGetWMHints(dpy, w);
++			noinput = hints && (hints->flags & InputHint) && !hints->input;
++			if (hints)
++				XFree(hints);
++			if (!noinput)
++				continue;
++		}
 +		if (unmanagedrules[i].transient
 +		&& (!XGetTransientForHint(dpy, w, &parent) || !wintoclient(parent)))
 +			continue;
