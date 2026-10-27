@@ -206,11 +206,12 @@ diff --git a/config.def.h b/config.def.h
  };
  
  /* button definitions */
-@@ -184 +236,3 @@
+@@ -184 +236,4 @@
 -	{ NULL,   NULL,     NULL,  NULL,  NULL, 0 },
 +	{ "wps", "wps", NULL, "_NET_WM_STATE_SKIP_TASKBAR", NULL, 0 },
 +	{ "wpsoffice", "wpsoffice", NULL, NULL, "_NET_WM_WINDOW_TYPE_SPLASH", 0 },
-+	{ "wechat", "wechat", NULL, NULL, "_NET_WM_WINDOW_TYPE_UTILITY", 1 },
++	/* WeChat popups can name an unmanaged group leader as their parent. */
++	{ "wechat", "wechat", NULL, NULL, "_NET_WM_WINDOW_TYPE_UTILITY", 0 },
 diff --git a/drw.c b/drw.c
 --- a/drw.c
 +++ b/drw.c
