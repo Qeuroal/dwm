@@ -7,7 +7,7 @@ config_dir=${XDG_CONFIG_HOME:-$HOME/.config}
 
 # 桌面脚本和配置
 mkdir -p "$HOME/.dwm" "$config_dir"
-cp "$project_dir/kit/autostart.sh" "$HOME/.dwm/autostart.sh"
+ln -sfn "$project_dir/kit/autostart.sh" "$HOME/.dwm/autostart.sh"
 ln -sfn "$project_dir/kit" "$HOME/.dwm/kit"
 ln -sfn "$project_dir/kit/profiles/status_config" "$HOME/.dwm/status_config"
 
