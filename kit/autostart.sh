@@ -19,7 +19,7 @@ fi
 /bin/bash ~/.dwm/kit/tools/run-mailsync.sh &
 # ~/.dwm/kit/tools/autostart_wait.sh &
 if command -v clash-verge &> /dev/null; then
-    clash-verge &
+    env --default-signal=CHLD clash-verge &
 fi
 if command -v fcitx5 &> /dev/null ; then
     fcitx5 -d
