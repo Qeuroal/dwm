@@ -46,11 +46,13 @@ sudo make install
 ```
 
 `make rebuild` 按 `patch/`、`patch/after/`、`patch/custom/` 的顺序应用补丁，并建立桌面配置链接。
+脚本还会检查 `~/.xinitrc`，未找到 `exec dwm` 时自动追加该启动行。
 安装路径在 [config.mk](config.mk) 中设置，默认是 `/usr/local`。
 
 ### 启动
 
-在 `~/.xinitrc` 中加入：
+执行过 `make rebuild` 后，无需再次添加启动行。
+未执行该命令时，才需手动将 `~/.xinitrc` 的窗口管理器启动行设为：
 
 ```sh
 exec dwm
@@ -108,6 +110,7 @@ fc-match 'Microsoft YaHei'
 
 输入法可使用 `fcitx5`、`fcitx5-rime`、`fcitx5-gtk`、`fcitx5-qt` 和 `fcitx5-configtool`，按需安装。
 [dotfiles/.xprofile](dotfiles/.xprofile) 设置输入法环境变量；Rime 词库和方案单独配置。
+fcitx5 由 `kit/autostart.sh` 启动，已运行时跳过；无需在 `~/.xinitrc` 中重复启动。
 
 ## 音频和蓝牙
 
