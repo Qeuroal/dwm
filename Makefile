@@ -56,17 +56,13 @@ fonts:
 	sudo pacman -S --needed ttf-jetbrains-mono-nerd ttf-lxgw-wenkai-mono
 
 deps: fonts
-	@if pacman -Q pipewire-pulse >/dev/null 2>&1; then \
-		audio_packages=pipewire-pulse; \
-	else \
-		audio_packages="pulseaudio pulseaudio-bluetooth"; \
-	fi; \
 	sudo pacman -S --needed \
 		gcc make patch git libx11 libxft libxinerama libxrender \
 		xorg-server xorg-xinit dmenu ghostty \
 		picom feh xorg-xsetroot xorg-xinput xorg-xrandr \
 		acpi bc iproute2 alsa-utils libpulse bluez bluez-utils brightnessctl libnotify dunst \
-		network-manager-applet xfce4-power-manager $$audio_packages
+		network-manager-applet xfce4-power-manager \
+		pipewire pipewire-audio pipewire-pulse pipewire-alsa wireplumber
 
 GITMERGE_INFO ?=
 MERGE_MSG = merge dev$(if $(GITMERGE_INFO), ($(GITMERGE_INFO)))

@@ -1,9 +1,5 @@
 #!/bin/bash
 
-if command -v fcitx5 &> /dev/null && ! pgrep -u "$UID" -x fcitx5 > /dev/null; then
-    fcitx5 -d
-fi
-
 /bin/bash ~/.dwm/kit/status/dwm-status.sh &
 /bin/bash ~/.dwm/kit/wallpaper/wp-autochange.sh &
 #picom -o 0.95 -i 0.88 --detect-rounded-corners --vsync --blur-background-fixed -f -D 5 -c -b
@@ -25,3 +21,7 @@ fi
 if command -v clash-verge &> /dev/null; then
     clash-verge &
 fi
+if command -v fcitx5 &> /dev/null ; then
+    fcitx5 -d
+fi
+

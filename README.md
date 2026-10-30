@@ -29,7 +29,7 @@ make fonts
 | X11 与启动 | xorg-server、xorg-xinit、dmenu、ghostty |
 | 合成、壁纸和通知 | picom、feh、libnotify、dunst |
 | 状态栏与硬件控制 | xorg-xsetroot、acpi、bc、iproute2、alsa-utils、brightnessctl、xorg-xinput、xorg-xrandr |
-| 音量与蓝牙 | libpulse、bluez、bluez-utils，以及 PulseAudio 或 pipewire-pulse |
+| 音量与蓝牙 | pipewire、pipewire-audio、pipewire-pulse、pipewire-alsa、wireplumber、libpulse、bluez、bluez-utils |
 | 网络和电源管理 | network-manager-applet、xfce4-power-manager |
 
 `make deps` 只安装软件包，不启用服务或安装 dwm。
@@ -116,17 +116,26 @@ fcitx5 由 `kit/autostart.sh` 启动，已运行时跳过；无需在 `~/.xinitr
 
 音量键和状态栏通过 `pactl` 控制默认输出，支持扬声器及蓝牙耳机。
 
-`make deps` 默认安装 `pulseaudio` 和 `pulseaudio-bluetooth`；
-如果已安装 `pipewire-pulse`，则保留该后端，不另装 PulseAudio。
+音频统一使用 PipeWire，WirePlumber 管理设备和路由，pipewire-pulse 兼容使用 PulseAudio 接口的应用。
+`make deps` 安装这一套组件；音量脚本仍使用 `pactl`。
 
-按所用后端启用用户服务：
+从原生 PulseAudio 迁移时，先移除 `pulseaudio-bluetooth`、`pulseaudio-jack`（若已安装），
+安装 `pipewire-pulse` 时确认替换 `pulseaudio`。保留 `libpulse`，它是 `pactl` 和应用需要的客户端库。
+
+迁移后禁止原生 PulseAudio 再次启动：
 
 ```sh
-# PulseAudio
-systemctl --user enable --now pulseaudio.socket
+systemctl --user mask --now pulseaudio.socket pulseaudio.service
+```
 
-# 或 PipeWire
-systemctl --user enable --now pipewire-pulse.socket wireplumber.service
+如果已有 `~/.config/wireplumber/wireplumber.conf.d/51-pulseaudio-bluetooth.conf`，
+先备份并移走它。该旧配置会禁用蓝牙和 ALSA 设备，与统一音频方案冲突。
+
+启用用户服务：
+
+```sh
+systemctl --user enable --now pipewire.socket pipewire-pulse.socket wireplumber.service
+systemctl --user restart wireplumber
 ```
 
 使用蓝牙时还需启用系统服务：
@@ -134,16 +143,6 @@ systemctl --user enable --now pipewire-pulse.socket wireplumber.service
 ```sh
 sudo systemctl enable --now bluetooth.service
 ```
-
-如果使用 PulseAudio，同时运行 WirePlumber（例如用于屏幕共享），部署以下配置，避免两者争抢蓝牙和 ALSA 声卡：
-
-```sh
-mkdir -p ~/.config/wireplumber/wireplumber.conf.d
-cp kit/profiles/wireplumber/51-pulseaudio-bluetooth.conf ~/.config/wireplumber/wireplumber.conf.d/
-systemctl --user restart wireplumber pulseaudio
-```
-
-**使用 pipewire-pulse 时不要部署这份配置；切换到它之前先移除该配置。**
 
 查看输出设备、音量和静音状态：
 
