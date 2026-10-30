@@ -2,40 +2,40 @@
 # Screenshot: http://s.natalian.org/2013-08-17/dwm_status.png
 # Network speed stuff stolen from http://linuxclues.blogspot.sg/2009/11/shell-script-show-network-speed.html
 
-# This function parses /proc/net/dev file searching for a line containing $interface data.
-# Within that line, the first and ninth numbers after ':' are respectively the received and transmited bytes.
-function get_bytes {
-	# Find active network interface
-	interface=$(ip route get 8.8.8.8 2>/dev/null| awk '{print $5}')
-	line=$(grep $interface /proc/net/dev | cut -d ':' -f 2 | awk '{print "received_bytes="$1, "transmitted_bytes="$9}')
-	eval $line
-	now=$(date +%s%N)
+# Volume keys notify the loop so its network samples stay in the same process.
+if [[ ${BASH_SOURCE[0]} == "$0" ]]; then
+    pid_file="${XDG_RUNTIME_DIR:-/run/user/$UID}/dwm-status.pid"
+    if read -r status_pid 2>/dev/null < "$pid_file" && [[ $status_pid =~ ^[1-9][0-9]*$ ]]; then
+        status_args=()
+        if [[ -r /proc/$status_pid/cmdline ]]; then
+            mapfile -d '' -t status_args < "/proc/$status_pid/cmdline"
+        fi
+        if [[ ${status_args[1]:-} -ef "$HOME/.dwm/kit/status/dwm-status.sh" && ${status_args[2]:-} == --locked ]] &&
+            kill -USR1 "$status_pid" 2>/dev/null; then
+            exit 0
+        fi
+    fi
+fi
+
+get_bytes() {
+    interface=$(ip route get 8.8.8.8 2>/dev/null | awk '{ for (i=1; i<NF; i++) if ($i == "dev") { print $(i+1); exit } }')
+    [[ -n $interface ]] || return 1
+    read -r received_bytes transmitted_bytes < <(
+        awk -v iface="$interface" '$1 == iface ":" { print $2, $10; exit }' /proc/net/dev
+    )
+    [[ $received_bytes =~ ^[0-9]+$ && $transmitted_bytes =~ ^[0-9]+$ ]] || return 1
+    now=$(date +%s%N)
 }
 
-# Function which calculates the speed using actual and old byte number.
-# Speed is shown in KByte per second when greater or equal than 1 KByte per second.
-# This function should be called each second.
-
-function get_velocity {
-	value=$1
-	old_value=$2
-	now=$3
-
-	timediff=$(($now - $old_time))
-	velKB=$(echo "1000000000*($value-$old_value)/1024/$timediff" | bc)
-	if test "$velKB" -gt 1024
-	then
-		echo $(echo "scale=2; $velKB/1024" | bc)MB/s
-	else
-		echo ${velKB}KB/s
-	fi
+get_velocity() {
+    local delta=$(($1 - $2)) elapsed=$((now - old_time))
+    ((delta >= 0 && elapsed > 0)) || { printf '0KB/s'; return; }
+    awk -v delta="$delta" -v elapsed="$elapsed" 'BEGIN {
+        rate = delta * 1000000000 / 1024 / elapsed
+        if (rate >= 1024) printf "%.2fMB/s", rate / 1024
+        else printf "%dKB/s", rate
+    }'
 }
-
-# Get initial values
-get_bytes
-old_received_bytes=$received_bytes
-old_transmitted_bytes=$transmitted_bytes
-old_time=$now
 
 print_volume() {
 	volume="$(amixer get Master | tail -n1 | sed -r 's/.*\[(.*)%\].*/\1/')"
@@ -153,7 +153,7 @@ show_record(){
 }
 
 
-LOC=$(readlink -f "$0")
+LOC=$(readlink -f "${BASH_SOURCE[0]}")
 DIR=$(dirname "$LOC")
 export IDENTIFIER="unicode"
 
@@ -177,15 +177,23 @@ if [ -f ~/.dwm/status_config -a `cat ~/.dwm/status_config | grep -c "set show_me
     memInfo=" 💿 $(print_mem)M"
 fi
 
-get_bytes
-
-# Calculates speeds
-vel_recv=" ⬇️ ""$(get_velocity $received_bytes $old_received_bytes $now)"
-vel_trans=" ⬆️ ""$(get_velocity $transmitted_bytes $old_transmitted_bytes $now)"
-
 velInfo=""
-if [ -f ~/.dwm/status_config -a `cat ~/.dwm/status_config | grep -c "set show_vel true"` -gt 0 ]; then
-    velInfo=" ${vel_recv}${vel_trans}"
+if grep -qx 'set show_vel true' "$HOME/.dwm/status_config" 2>/dev/null; then
+    if get_bytes; then
+        if [[ ${old_interface:-} == "$interface" && -n ${old_time:-} ]]; then
+            velInfo=" ⬇️ $(get_velocity "$received_bytes" "$old_received_bytes") ⬆️ $(get_velocity "$transmitted_bytes" "$old_transmitted_bytes")"
+        else
+            velInfo=" ⬇️ 0KB/s ⬆️ 0KB/s"
+        fi
+        old_interface=$interface
+        old_received_bytes=$received_bytes
+        old_transmitted_bytes=$transmitted_bytes
+        old_time=$now
+    else
+        unset old_interface old_time
+    fi
+else
+    unset old_interface old_time
 fi
 
 # xsetroot -name "  💿 $(print_mem)M ⬇️ $vel_recv ⬆️ $vel_trans $(dwm_alsa) [ $(print_bat) ]$(show_record) $(print_date) "
@@ -215,10 +223,3 @@ fi
 dateInfo=" $(print_date)"
 
 xsetroot -name "${memInfo}${velInfo}${alsaInfo}${batInfo}${recordInfo}${dateInfo} "
-
-# Update old values to perform new calculations
-old_received_bytes=$received_bytes
-old_transmitted_bytes=$transmitted_bytes
-old_time=$now
-
-exit 0

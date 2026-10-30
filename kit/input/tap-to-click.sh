@@ -1,11 +1,10 @@
 #!/bin/bash
 
-# Get id of touchpad and the id of the field corresponding to
-# tapping to click
-id=`xinput list | grep "Touchpad" | cut -d'=' -f2 | cut -d'[' -f1`
-tap_to_click_id=`xinput list-props $id | \
-                      grep "Tapping Enabled (" \
-                      | cut -d'(' -f2 | cut -d')' -f1`
+command -v xinput >/dev/null 2>&1 || exit 0
 
-# Set the property to true
-xinput --set-prop $id $tap_to_click_id 1
+while read -r id; do
+    properties=$(xinput list-props "$id") || continue
+    if [[ $properties == *"libinput Tapping Enabled ("* ]]; then
+        xinput --set-prop "$id" "libinput Tapping Enabled" 1
+    fi
+done < <(xinput list --short | sed -n '/[Tt]ouchpad/s/.*id=\([0-9][0-9]*\).*/\1/p')
