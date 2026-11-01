@@ -53,15 +53,16 @@ rebuild:
 
 fonts:
 	@test -f /etc/arch-release || { printf 'make fonts/deps supports Arch Linux only\n' >&2; exit 1; }
-	sudo pacman -S --needed ttf-jetbrains-mono-nerd
+	sudo pacman -S --needed ttf-jetbrains-mono-nerd ttf-lxgw-wenkai-mono
 
 deps: fonts
 	sudo pacman -S --needed \
 		gcc make patch git libx11 libxft libxinerama libxrender \
 		xorg-server xorg-xinit dmenu ghostty \
 		picom feh xorg-xsetroot xorg-xinput xorg-xrandr \
-		acpi bc iproute2 alsa-utils brightnessctl libnotify dunst \
-		network-manager-applet xfce4-power-manager
+		acpi bc iproute2 alsa-utils libpulse bluez bluez-utils brightnessctl libnotify dunst \
+		network-manager-applet xfce4-power-manager \
+		pipewire pipewire-audio pipewire-pulse pipewire-alsa wireplumber
 
 GITMERGE_INFO ?=
 MERGE_MSG = merge dev$(if $(GITMERGE_INFO), ($(GITMERGE_INFO)))

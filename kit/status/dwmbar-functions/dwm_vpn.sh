@@ -12,7 +12,7 @@ dwm_vpn () {
     if [ "$VPN" != "" ]; then
         printf "%s" "$SEP1"
         if [ "$IDENTIFIER" = "unicode" ]; then
-            printf "🔒 %s" "$VPN"
+            printf "󰌾 %s" "$VPN"
         else
             printf "VPN %s" "$VPN"
         fi

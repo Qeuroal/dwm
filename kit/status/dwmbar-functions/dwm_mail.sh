@@ -12,9 +12,9 @@ dwm_mail () {
     printf "%s" "$SEP1"
     if [ "$IDENTIFIER" = "unicode" ]; then
         if [ "$MAILBOX" -eq 0 ]; then
-            printf "📪 %s" "$MAILBOX"
+            printf "󰇯 %s" "$MAILBOX"
         else
-            printf "📫 %s" "$MAILBOX"
+            printf "󰇮 %s" "$MAILBOX"
         fi
     else
         printf "MAI %s" "$MAILBOX"

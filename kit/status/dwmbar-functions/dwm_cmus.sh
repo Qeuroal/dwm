@@ -17,13 +17,13 @@ dwm_cmus () {
 
         if [ "$IDENTIFIER" = "unicode" ]; then
             if [ "$STATUS" = "playing" ]; then
-                STATUS="▶"
+                STATUS="󰐊"
             else
-                STATUS="⏸"
+                STATUS="󰏤"
             fi
 
             if [ "$SHUFFLE" = "true" ]; then
-                SHUFFLE=" 🔀"
+                SHUFFLE=" 󰒝"
             else
                 SHUFFLE=""
             fi

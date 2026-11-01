@@ -1,12 +1,13 @@
 #!/bin/bash
 
-/usr/bin/amixer -qM set Master toggle || exit $?
-state=$(LC_ALL=C /usr/bin/amixer -M get Master) || exit $?
-volume=$(printf '%s\n' "$state" | sed -n 's/.*\[\([0-9][0-9]*\)%\].*/\1/p' | head -n 1)
+/usr/bin/pactl set-sink-mute @DEFAULT_SINK@ toggle || exit $?
+state=$(LC_ALL=C /usr/bin/pactl get-sink-volume @DEFAULT_SINK@) || exit $?
+volume=$(printf '%s\n' "$state" | grep -oE '[0-9]+%' | tr -d '%' | sort -n | tail -n 1)
 [[ $volume =~ ^[0-9]+$ ]] || exit 1
+mute=$(LC_ALL=C /usr/bin/pactl get-sink-mute @DEFAULT_SINK@) || exit $?
 label="Volume ${volume}%"
 value=$volume
-if [[ $state == *'[off]'* ]]; then
+if [[ $mute == 'Mute: yes' ]]; then
     label="Muted (${volume}%)"
     value=0
 fi
