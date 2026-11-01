@@ -4,8 +4,8 @@ Date: Tue, 3 Oct 2023 12:33:58 -0300
 Subject: [PATCH] pertag with last selection
 
 ---
- dwm.c | 97 ++++++++++++++++++++++++++++++++++++++++++++++++++++++-----
- 1 file changed, 90 insertions(+), 7 deletions(-)
+ dwm.c | 103 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++----
+ 1 file changed, 96 insertions(+), 7 deletions(-)
 
 diff --git a/dwm.c b/dwm.c
 index f1d86b2..0e4d444 100644
@@ -90,7 +90,23 @@ index f1d86b2..0e4d444 100644
  	arrange(selmon);
  }
  
-@@ -1511,9 +1539,9 @@ void
+@@ -1421,9 +1449,15 @@
+ sendmon(Client *c, Monitor *m)
+ {
++	unsigned int i;
++
+ 	if (c->mon == m)
+ 		return;
++	/* The old monitor must not retain focus history for a migrated client. */
++	for (i = 0; i <= LENGTH(tags); i++)
++		if (c->mon->pertag->sel[i] == c)
++			c->mon->pertag->sel[i] = NULL;
+ 	unfocus(c, 1);
+ 	detach(c);
+ 	detachstack(c);
+ 	c->mon = m;
+ 	c->tags = m->tagset[m->seltags]; /* assign tags of target monitor */
+@@ -1511,9 +1545,9 @@ void
  setlayout(const Arg *arg)
  {
  	if (!arg || !arg->v || arg->v != selmon->lt[selmon->sellt])
