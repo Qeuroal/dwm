@@ -41,7 +41,7 @@ print_volume() {
 	volume="$(amixer get Master | tail -n1 | sed -r 's/.*\[(.*)%\].*/\1/')"
 	if test "$volume" -gt 0
 	then
-		echo -e "\uE05D${volume}"
+		echo -e "\U000f057e${volume}"
 	else
 		echo -e "Mute"
 	fi
@@ -174,16 +174,16 @@ export IDENTIFIER="unicode"
 
 memInfo=""
 if [ -f ~/.dwm/status_config -a `cat ~/.dwm/status_config | grep -c "set show_mem true"` -gt 0 ]; then
-    memInfo=" 💿 $(print_mem)M"
+    memInfo=" 󰍛 $(print_mem)M"
 fi
 
 velInfo=""
 if grep -qx 'set show_vel true' "$HOME/.dwm/status_config" 2>/dev/null; then
     if get_bytes; then
         if [[ ${old_interface:-} == "$interface" && -n ${old_time:-} ]]; then
-            velInfo=" ⬇️ $(get_velocity "$received_bytes" "$old_received_bytes") ⬆️ $(get_velocity "$transmitted_bytes" "$old_transmitted_bytes")"
+            velInfo=" 󰇚 $(get_velocity "$received_bytes" "$old_received_bytes") 󰕒 $(get_velocity "$transmitted_bytes" "$old_transmitted_bytes")"
         else
-            velInfo=" ⬇️ 0KB/s ⬆️ 0KB/s"
+            velInfo=" 󰇚 0KB/s 󰕒 0KB/s"
         fi
         old_interface=$interface
         old_received_bytes=$received_bytes
@@ -196,7 +196,7 @@ else
     unset old_interface old_time
 fi
 
-# xsetroot -name "  💿 $(print_mem)M ⬇️ $vel_recv ⬆️ $vel_trans $(dwm_alsa) [ $(print_bat) ]$(show_record) $(print_date) "
+# xsetroot -name "  󰍛 $(print_mem)M 󰇚 $vel_recv 󰕒 $vel_trans $(dwm_alsa) [ $(print_bat) ]$(show_record) $(print_date) "
 #
 
 alsaInfo=$(dwm_alsa)

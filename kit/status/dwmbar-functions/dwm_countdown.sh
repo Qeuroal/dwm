@@ -11,7 +11,7 @@ dwm_countdown () {
         if [ -e "$f" ]; then
             printf "%s" "$SEP1"
             if [ "$IDENTIFIER" = "unicode" ]; then
-                printf "⏳ %s" "$(tail -1 /tmp/countdown.*)"
+                printf "󰔟 %s" "$(tail -1 /tmp/countdown.*)"
             else
                 printf "CDN %s" "$(tail -1 /tmp/countdown.*)"
             fi
