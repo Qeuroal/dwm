@@ -283,8 +283,14 @@ diff --git a/dwm.c b/dwm.c
  			drw_text(drw, x, 0, w, bh, lrpad / 2, m->sel->name, 0);
  			if (m->sel->isfloating)
  				drw_rect(drw, x + boxs, boxs, boxw, boxw, m->sel->isfixed, 0);
-@@ -1333,0 +1366,1 @@
+@@ -1341,6 +1374,7 @@
+ 	if (XGetTransientForHint(dpy, w, &trans) && (t = wintoclient(trans))) {
+ 		c->mon = t->mon;
+ 		c->tags = t->tags;
 +		applyfloatsizerules(c, 1);
+ 	} else {
+ 		c->mon = selmon;
+ 		applyrules(c);
 @@ -1365,8 +1398,15 @@
  	grabbuttons(c, 0);
  	if (!c->isfloating)
