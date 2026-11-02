@@ -1,0 +1,81 @@
+From: Christopher Drelich <cd@cdrakka.com>
+Subject: [PATCH] Restart dwm with MOD+CTRL+SHIFT+R
+
+Adapted from https://dwm.suckless.org/patches/restartsig/dwm-restartsig-20180523-6.2.diff
+Restart skips autostart; if exec fails, the current dwm resumes.
+
+diff --git a/config.def.h b/config.def.h
+--- a/config.def.h
++++ b/config.def.h
+@@ -92,6 +92,7 @@
+ 	{ MODKEY,                       XK_k,      focusstack,     {.i = -1 } },
+ 	{ MODKEY,                       XK_i,      incnmaster,     {.i = +1 } },
+ 	{ MODKEY,                       XK_d,      incnmaster,     {.i = -1 } },
++	{ MODKEY|ControlMask|ShiftMask, XK_r,      quit,           {1} },
+ 	{ MODKEY,                       XK_h,      setmfact,       {.f = -0.05} },
+ 	{ MODKEY,                       XK_l,      setmfact,       {.f = +0.05} },
+ 	{ MODKEY|ShiftMask,             XK_h,      setcfact,       {.f = +0.25} },
+diff --git a/dwm.1 b/dwm.1
+--- a/dwm.1
++++ b/dwm.1
+@@ -150,6 +150,9 @@
+ .TP
+ .B Mod1\-Shift\-q
+ Quit dwm.
++.TP
++.B Mod4\-Control\-Shift\-r
++Restart dwm.
+ .SS Mouse commands
+ .TP
+ .B Mod1\-Button1
+diff --git a/dwm.c b/dwm.c
+--- a/dwm.c
++++ b/dwm.c
+@@ -284,6 +284,7 @@
+ static Drw *drw;
+ static Monitor *mons, *selmon;
+ static Window root, wmcheckwin;
++static int restart = 0;
+ static int useargb = 0;
+ static Visual *visual;
+ static int depth;
+@@ -1320,6 +1321,7 @@
+ void
+ quit(const Arg *arg)
+ {
++	restart = arg->i;
+ 	running = 0;
+ }
+ 
+@@ -2404,6 +2406,9 @@
+ int
+ main(int argc, char *argv[])
+ {
++	int restarted = getenv("DWM_RESTART") != NULL;
++
++	unsetenv("DWM_RESTART");
+ 	if (argc == 2 && !strcmp("-v", argv[1]))
+ 		die("dwm-"VERSION);
+ 	else if (argc != 1)
+@@ -2419,8 +2424,19 @@
+ 		die("pledge");
+ #endif /* __OpenBSD__ */
+ 	scan();
+-	runautostart();
+-	run();
++	if (!restarted)
++		runautostart();
++	for (;;) {
++		run();
++		if (!restart)
++			break;
++		if (setenv("DWM_RESTART", "1", 1) == 0)
++			execvp(argv[0], argv);
++		perror("dwm: restart failed");
++		unsetenv("DWM_RESTART");
++		restart = 0;
++		running = 1;
++	}
+ 	cleanup();
+ 	XCloseDisplay(dpy);
+ 	return EXIT_SUCCESS;
