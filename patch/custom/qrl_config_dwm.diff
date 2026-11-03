@@ -211,7 +211,7 @@ diff --git a/config.def.h b/config.def.h
 -	{ NULL,   NULL,     NULL,  NULL,  NULL, 0,         0 },
 +	{ "wps", "wps", NULL, "_NET_WM_STATE_SKIP_TASKBAR", NULL, 0, 0 },
 +	{ "et", "et", NULL, "_NET_WM_STATE_SKIP_TASKBAR", NULL, 0, 0 },
-+	{ "wpp", "wpp", NULL, NULL, NULL, 0, 0 },
++	{ "wpp", "wpp", NULL, NULL, "_KDE_NET_WM_WINDOW_TYPE_OVERRIDE", 0, 0 },
 +	/* WPS crop shape/ratio menus are non-focusable and omit SKIP_TASKBAR. */
 +	{ "wps", "wps", "wps", "_NET_WM_STATE_ABOVE", "_NET_WM_WINDOW_TYPE_NORMAL", 0, 1 },
 +	{ "wpsoffice", "wpsoffice", NULL, NULL, "_NET_WM_WINDOW_TYPE_SPLASH", 0, 0 },
