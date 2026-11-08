@@ -1,0 +1,229 @@
+From: Christopher Drelich <cd@cdrakka.com>
+Subject: [PATCH] Restart dwm and preserve window layouts
+
+Adapted from https://dwm.suckless.org/patches/restartsig/dwm-restartsig-20180523-6.2.diff
+Restart state persistence inspired by dwm-flexipatch seamless_restart.
+MOD+CTRL+SHIFT+R restarts dwm without rerunning autostart.
+
+diff --git a/config.def.h b/config.def.h
+--- a/config.def.h
++++ b/config.def.h
+@@ -92,6 +92,7 @@
+ 	{ MODKEY,                       XK_k,      focusstack,     {.i = -1 } },
+ 	{ MODKEY,                       XK_i,      incnmaster,     {.i = +1 } },
+ 	{ MODKEY,                       XK_d,      incnmaster,     {.i = -1 } },
++	{ MODKEY|ControlMask|ShiftMask, XK_r,      quit,           {1} },
+ 	{ MODKEY,                       XK_h,      setmfact,       {.f = -0.05} },
+ 	{ MODKEY,                       XK_l,      setmfact,       {.f = +0.05} },
+ 	{ MODKEY|ShiftMask,             XK_h,      setcfact,       {.f = +0.25} },
+diff --git a/dwm.1 b/dwm.1
+--- a/dwm.1
++++ b/dwm.1
+@@ -150,6 +150,9 @@
+ .TP
+ .B Mod1\-Shift\-q
+ Quit dwm.
++.TP
++.B Mod4\-Control\-Shift\-r
++Restart dwm.
+ .SS Mouse commands
+ .TP
+ .B Mod1\-Button1
+diff --git a/dwm.c b/dwm.c
+--- a/dwm.c
++++ b/dwm.c
+@@ -284,6 +284,7 @@
+ static Drw *drw;
+ static Monitor *mons, *selmon;
+ static Window root, wmcheckwin;
++static int restart = 0;
+ static int useargb = 0;
+ static Visual *visual;
+ static int depth;
+@@ -1320,6 +1321,7 @@
+ void
+ quit(const Arg *arg)
+ {
++	restart = arg->i;
+ 	running = 0;
+ }
+ 
+@@ -2401,9 +2403,148 @@
+ 	pop(c);
+ }
+ 
++/* Save the live session on the X root window for the next dwm process. */
++static unsigned int
++restartlayoutindex(const Layout *layout)
++{
++	unsigned int i;
++	for (i = 0; i < LENGTH(layouts); i++)
++		if (&layouts[i] == layout)
++			return i;
++	return 0;
++}
++
++static int
++saverestartstate(void)
++{
++	Monitor *m;
++	Client *c;
++	unsigned long *data, *p;
++	unsigned int monitors = 0, clients = 0, i;
++	size_t words;
++	for (m = mons; m; m = m->next) {
++		monitors++;
++		for (c = m->clients; c; c = c->next)
++			clients++;
++	}
++	words = 5 + monitors * (12 + (LENGTH(tags) + 1) * 6) + clients * 9;
++	if (words > 65536 || !(data = calloc(words, sizeof(*data))))
++		return 0;
++	p = data;
++	*p++ = 0x44574d31; *p++ = monitors; *p++ = clients;
++	*p++ = selmon ? selmon->num : 0;
++	*p++ = selmon && selmon->sel ? selmon->sel->win : 0;
++	for (m = mons; m; m = m->next) {
++		*p++ = m->num; *p++ = m->tagset[0]; *p++ = m->tagset[1];
++		*p++ = m->seltags; *p++ = m->pertag->curtag; *p++ = m->pertag->prevtag;
++		*p++ = m->nmaster; *p++ = (unsigned long)(m->mfact * 1000000);
++		*p++ = m->sellt; *p++ = restartlayoutindex(m->lt[0]);
++		*p++ = restartlayoutindex(m->lt[1]); *p++ = m->showbar;
++		for (i = 0; i <= LENGTH(tags); i++) {
++			*p++ = m->pertag->nmasters[i];
++			*p++ = (unsigned long)(m->pertag->mfacts[i] * 1000000);
++			*p++ = restartlayoutindex(m->pertag->ltidxs[i][0]);
++			*p++ = restartlayoutindex(m->pertag->ltidxs[i][1]);
++			*p++ = m->pertag->sellts[i]; *p++ = m->pertag->showbars[i];
++		}
++	}
++	for (m = mons; m; m = m->next)
++		for (c = m->clients; c; c = c->next) {
++			*p++ = c->win; *p++ = m->num; *p++ = c->tags; *p++ = c->isfloating;
++			*p++ = (unsigned int)c->x; *p++ = (unsigned int)c->y;
++			*p++ = c->w; *p++ = c->h; *p++ = (unsigned long)(c->cfact * 1000000);
++		}
++	XChangeProperty(dpy, root, XInternAtom(dpy, "_DWM_RESTART_STATE", False),
++		XA_CARDINAL, 32, PropModeReplace, (unsigned char *)data, words);
++	XSync(dpy, False);
++	free(data);
++	return 1;
++}
++
++static void
++restorerestartstate(void)
++{
++	Atom property = XInternAtom(dpy, "_DWM_RESTART_STATE", False), actual;
++	unsigned char *bytes = NULL;
++	unsigned long n, remaining, *data, *p, *clients;
++	unsigned int i, j, nm, nc, selectedmon;
++	int format;
++	Window selected;
++	Monitor *m;
++	Client *c;
++	if (XGetWindowProperty(dpy, root, property, 0, 65536, True, XA_CARDINAL,
++		&actual, &format, &n, &remaining, &bytes) != Success || !bytes)
++		return;
++	data = (unsigned long *)bytes;
++	if (actual != XA_CARDINAL || format != 32 || n < 5 || remaining || data[0] != 0x44574d31)
++		goto out;
++	nm = data[1]; nc = data[2]; selectedmon = data[3]; selected = data[4];
++	if (nm > 64 || nc > 4096 || n != 5 + nm * (12 + (LENGTH(tags) + 1) * 6) + nc * 9)
++		goto out;
++	p = data + 5;
++	for (i = 0; i < nm; i++) {
++		unsigned long *q = p;
++		for (m = mons; m && m->num != (int)q[0]; m = m->next);
++		p += 12 + (LENGTH(tags) + 1) * 6;
++		if (!m || q[3] > 1 || q[4] > LENGTH(tags) || q[5] > LENGTH(tags) ||
++		    q[8] > 1 || q[9] >= LENGTH(layouts) || q[10] >= LENGTH(layouts))
++			continue;
++		m->tagset[0] = q[1]; m->tagset[1] = q[2]; m->seltags = q[3];
++		m->pertag->curtag = q[4]; m->pertag->prevtag = q[5];
++		m->nmaster = q[6]; m->mfact = q[7] / 1000000.0;
++		m->sellt = q[8]; m->lt[0] = &layouts[q[9]]; m->lt[1] = &layouts[q[10]];
++		m->showbar = q[11] != 0;
++		q += 12;
++		for (j = 0; j <= LENGTH(tags); j++, q += 6) {
++			if (q[2] >= LENGTH(layouts) || q[3] >= LENGTH(layouts) || q[4] > 1)
++				continue;
++			m->pertag->nmasters[j] = q[0]; m->pertag->mfacts[j] = q[1] / 1000000.0;
++			m->pertag->ltidxs[j][0] = &layouts[q[2]]; m->pertag->ltidxs[j][1] = &layouts[q[3]];
++			m->pertag->sellts[j] = q[4]; m->pertag->showbars[j] = q[5] != 0;
++			m->pertag->sel[j] = NULL;
++		}
++		strncpy(m->ltsymbol, m->lt[m->sellt]->symbol, sizeof m->ltsymbol - 1);
++		m->ltsymbol[sizeof m->ltsymbol - 1] = '\0';
++		updatebarpos(m);
++		resizebarwin(m);
++	}
++	clients = p;
++	for (i = nc; i > 0; i--) {
++		unsigned long *q = clients + (i - 1) * 9;
++		if (!(c = wintoclient(q[0])))
++			continue;
++		for (m = mons; m && m->num != (int)q[1]; m = m->next);
++		if (!m || !q[2] || !q[6] || !q[7])
++			continue;
++		detach(c); detachstack(c);
++		c->mon = m; c->tags = q[2]; c->isfloating = q[3] != 0;
++		c->cfact = q[8] / 1000000.0;
++		attach(c); attachstack(c);
++		if (c->isfloating && !c->isfullscreen)
++			resizeclient(c, (int)(unsigned int)q[4], (int)(unsigned int)q[5], q[6], q[7]);
++	}
++	for (m = mons; m; m = m->next) {
++		m->sel = NULL;
++		if (m->num == (int)selectedmon)
++			selmon = m;
++	}
++	arrange(NULL);
++	c = wintoclient(selected);
++	if (c && c->mon == selmon && ISVISIBLE(c)) {
++		selmon->pertag->sel[selmon->pertag->curtag] = c;
++		focus(c);
++	} else
++		focus(NULL);
++out:
++	XFree(bytes);
++}
++
+ int
+ main(int argc, char *argv[])
+ {
++	int restarted = getenv("DWM_RESTART") != NULL;
++
++	unsetenv("DWM_RESTART");
+ 	if (argc == 2 && !strcmp("-v", argv[1]))
+ 		die("dwm-"VERSION);
+ 	else if (argc != 1)
+@@ -2419,8 +2560,27 @@
+ 		die("pledge");
+ #endif /* __OpenBSD__ */
+ 	scan();
+-	runautostart();
+-	run();
++	if (restarted)
++		restorerestartstate();
++	if (!restarted)
++		runautostart();
++	for (;;) {
++		run();
++		if (!restart)
++			break;
++		if (!saverestartstate()) {
++			fputs("dwm: cannot save restart state\n", stderr);
++			restart = 0;
++			running = 1;
++			continue;
++		}
++		if (setenv("DWM_RESTART", "1", 1) == 0)
++			execvp(argv[0], argv);
++		perror("dwm: restart failed");
++		unsetenv("DWM_RESTART");
++		restart = 0;
++		running = 1;
++	}
+ 	cleanup();
+ 	XCloseDisplay(dpy);
+ 	return EXIT_SUCCESS;

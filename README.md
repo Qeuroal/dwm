@@ -34,6 +34,15 @@ make fonts
 
 `make deps` 只安装软件包，不启用服务或安装 dwm。
 
+更新已安装的 Clash Verge 服务：
+
+```sh
+make update_deps
+# 简写：make ud
+```
+
+该命令调用 Clash Verge 自带的服务安装器，需要 sudo 权限，代理可能短暂中断；它不会更新系统软件包。未安装 Clash Verge 时会自动跳过。
+
 ### 应用补丁并编译
 
 **先保存工作区改动及需要保留的未跟踪文件。**
