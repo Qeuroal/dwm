@@ -6,7 +6,7 @@ include config.mk
 .PHONY: all clean dist \
 	install uninstall \
 	rebuild \
-	fonts deps \
+	fonts deps update_deps ud \
 	gm gitmerge
 
 SRC = drw.c dwm.c util.c
@@ -63,6 +63,16 @@ deps: fonts
 		acpi bc iproute2 alsa-utils libpulse bluez bluez-utils brightnessctl libnotify dunst \
 		network-manager-applet xfce4-power-manager \
 		pipewire pipewire-audio pipewire-pulse pipewire-alsa wireplumber
+
+update_deps:
+	@if command -v clash-verge-service-install >/dev/null 2>&1; then \
+		printf '更新 Clash Verge 服务...\n'; \
+		sudo clash-verge-service-install; \
+	else \
+		printf '未安装 Clash Verge 服务安装器，跳过。\n'; \
+	fi
+
+ud: update_deps
 
 GITMERGE_INFO ?=
 MERGE_MSG = merge dev$(if $(GITMERGE_INFO), ($(GITMERGE_INFO)))
